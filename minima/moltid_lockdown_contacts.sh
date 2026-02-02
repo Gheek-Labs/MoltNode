@@ -1,26 +1,20 @@
 #!/bin/bash
-set -e
+set -euo pipefail
+
+CLI="${CLI:-./minima/cli.sh}"
+
+command -v jq >/dev/null 2>&1 || { echo "ERROR: jq is required but not installed."; exit 1; }
 
 echo "== MoltID: Contact Lockdown =="
 
-if ! command -v jq &> /dev/null; then
-  echo "ERROR: jq is required but not installed."
-  exit 1
-fi
+RESULT="$($CLI maxextra action:allowallcontacts enable:false)"
 
-echo "Disabling automatic contact acceptance..."
-RESPONSE=$(./minima/cli.sh maxextra action:allowallcontacts enable:false 2>/dev/null)
-
-if ! echo "$RESPONSE" | jq -e '.status == true' > /dev/null 2>&1; then
+if ! echo "$RESULT" | jq -e '.status == true' > /dev/null 2>&1; then
   echo "ERROR: Failed to lock down contacts."
   exit 1
 fi
 
 echo ""
-echo "Your node will now:"
-echo "- Accept messages to your MAX# address"
-echo "- Reject unsolicited contact requests"
-echo ""
-echo "You may whitelist trusted contacts using:"
-echo "  maxextra action:addallowed publickey:<PUBKEY>"
-echo ""
+echo "Contact requests now rejected by default."
+echo "To whitelist a trusted contact pubkey:"
+echo "  $CLI maxextra action:addallowed publickey:<PUBKEY>"
