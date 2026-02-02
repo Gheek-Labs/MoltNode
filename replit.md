@@ -11,6 +11,7 @@ A one-click, agent-friendly, headless Minima blockchain node setup. The node run
 │   ├── minima.jar     # Minima node JAR
 │   ├── start.sh       # Node startup script
 │   ├── cli.sh         # Agent-friendly CLI wrapper
+│   ├── COMMANDS.md    # Full RPC command reference
 │   └── data/          # Node data directory (gitignored)
 └── README.md          # Documentation
 ```
