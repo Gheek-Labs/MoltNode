@@ -71,17 +71,89 @@ addr = subprocess.check_output(["./minima/get_maxima.sh"]).decode().strip()
 ./minima/cli.sh maxcontacts action:remove id:0
 ```
 
+**Search contact by publickey:**
+```bash
+./minima/cli.sh maxcontacts action:search publickey:0x3081..
+```
+
 ---
 
 ## 5. Send Maxima Message
 
+**Send by contact address:**
 ```bash
-./minima/cli.sh maxima action:send to:MxG... application:myapp data:hello
+./minima/cli.sh maxima action:send to:MxG... application:myapp data:0xFED5..
 ```
 
-**Send to contact by ID:**
+**Send by contact ID:**
 ```bash
-./minima/cli.sh maxima action:send id:0 application:myapp data:hello
+./minima/cli.sh maxima action:send id:0 application:myapp data:0xFED5..
+```
+
+**Send by publickey with polling (retries until success):**
+```bash
+./minima/cli.sh maxima action:send publickey:0xCD34.. application:myapp data:0xFED5.. poll:true
+```
+
+**Broadcast to ALL contacts:**
+```bash
+./minima/cli.sh maxima action:sendall application:myapp data:0xFED5..
+```
+
+**Set your display name:**
+```bash
+./minima/cli.sh maxima action:setname name:MyAgentNode
+```
+
+**Refresh contacts (re-sync):**
+```bash
+./minima/cli.sh maxima action:refresh
+```
+
+---
+
+## 6. Sign & Verify Messages
+
+**Sign data with your Maxima ID:**
+```bash
+./minima/cli.sh maxsign data:0xCD34..
+```
+
+**Verify signature:**
+```bash
+./minima/cli.sh maxverify data:0xCD34.. publickey:0xFED5.. signature:0x4827..
+```
+
+**Create RSA keypair for custom signing:**
+```bash
+./minima/cli.sh maxcreate
+```
+
+---
+
+## 7. Advanced: Permanent Maxima Address
+
+For static/always-reachable addresses (useful for bots/servers):
+
+**Set static MLS host:**
+```bash
+./minima/cli.sh maxextra action:staticmls host:Mx...@34.190.784.3:9001
+```
+
+**Register for public contact lookup:**
+```bash
+./minima/cli.sh maxextra action:addpermanent publickey:0x3081..
+```
+
+**Get someone's current address from their MLS:**
+```bash
+./minima/cli.sh maxextra action:getaddress maxaddress:MAX#0x3081..#Mx..@34.190.784.3:9001
+```
+
+**Control who can add you as contact:**
+```bash
+./minima/cli.sh maxextra action:allowallcontacts enable:false
+./minima/cli.sh maxextra action:addallowed publickey:0x2451..
 ```
 
 ---

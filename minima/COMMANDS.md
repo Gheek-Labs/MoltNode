@@ -56,12 +56,54 @@ Complete command list for agent programmatic access via `http://localhost:9005/<
 | `tutorial` | KISSVM scripts tutorial |
 
 ## Maxima P2P Messaging
+
+### maxima - Core Messaging
+
 | Command | Description |
 |---------|-------------|
-| `maxima action:info` | Maxima info |
-| `maxima action:send to:Mx.. data:hello` | Send message |
-| `maxcontacts action:list` | List contacts |
-| `maxcontacts action:add contact:Mx..` | Add contact |
+| `maxima action:info` | Your Maxima details (name, publickey, contact address) |
+| `maxima action:setname name:MyName` | Set display name for contacts |
+| `maxima action:hosts` | List your Maxima hosts |
+| `maxima action:send id:1 application:app data:0x..` | Send to contact by ID |
+| `maxima action:send to:MxG.. application:app data:0x..` | Send to contact address |
+| `maxima action:send publickey:0x.. application:app data:0x.. poll:true` | Send with retry |
+| `maxima action:sendall application:app data:0x..` | Broadcast to ALL contacts |
+| `maxima action:refresh` | Refresh/re-sync contacts |
+
+### maxcontacts - Contact Management
+
+| Command | Description |
+|---------|-------------|
+| `maxcontacts action:list` | List all contacts |
+| `maxcontacts action:add contact:MxG..@IP:PORT` | Add contact |
+| `maxcontacts action:remove id:1` | Remove contact by ID |
+| `maxcontacts action:search publickey:0x..` | Search by publickey |
+| `maxcontacts action:search id:1` | Search by ID |
+
+### maxextra - Advanced/Permanent Addresses
+
+| Command | Description |
+|---------|-------------|
+| `maxextra action:staticmls host:Mx..@IP:PORT` | Set static MLS host |
+| `maxextra action:staticmls host:clear` | Clear static MLS |
+| `maxextra action:addpermanent publickey:0x..` | Register for public lookup |
+| `maxextra action:removepermanent publickey:0x..` | Remove from public lookup |
+| `maxextra action:listpermanent` | List registered publickeys |
+| `maxextra action:getaddress maxaddress:MAX#0x..#Mx..@IP:PORT` | Get contact address from MLS |
+| `maxextra action:mlsinfo` | MLS usage info |
+| `maxextra action:allowallcontacts enable:true\|false` | Control new contacts |
+| `maxextra action:addallowed publickey:0x..` | Allow specific contact |
+| `maxextra action:listallowed` | List allowed publickeys |
+| `maxextra action:clearallowed` | Clear allowed list |
+
+### maxsign / maxverify - Cryptographic Signatures
+
+| Command | Description |
+|---------|-------------|
+| `maxcreate` | Create 128-bit RSA keypair |
+| `maxsign data:0x..` | Sign with Maxima ID |
+| `maxsign data:0x.. privatekey:0x..` | Sign with custom key |
+| `maxverify data:0x.. publickey:0x.. signature:0x..` | Verify signature |
 
 ## Cryptography
 | Command | Description |
