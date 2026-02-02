@@ -183,6 +183,7 @@ else
       fi
     else
       LISTEN_STATUS=0
+      PORT_CHECK_UNAVAILABLE=false
       if is_listening_on_port "$P2P_PORT"; then
         REASON="Public IP ($IP) and port $P2P_PORT appears to be listening."
         LISTEN_STATUS=0
@@ -191,11 +192,12 @@ else
         if [[ "$LISTEN_STATUS" -eq 1 ]]; then
           REASON="Public IP ($IP) but port $P2P_PORT does not appear to be listening locally."
         else
-          REASON="Public IP ($IP); cannot confirm listening port (ss/netstat unavailable)."
+          REASON="Public IP ($IP); cannot confirm listening port (ss/netstat unavailable). Assuming sovereign."
+          PORT_CHECK_UNAVAILABLE=true
         fi
       fi
 
-      if [[ "$PREFER_SOVEREIGN_MLS" == "true" && "$LISTEN_STATUS" -eq 0 ]]; then
+      if [[ "$PREFER_SOVEREIGN_MLS" == "true" && ( "$LISTEN_STATUS" -eq 0 || "$PORT_CHECK_UNAVAILABLE" == "true" ) ]]; then
         MLS_MODE="self"
       elif [[ -n "$COMMUNITY_MLS_HOST" ]]; then
         MLS_MODE="community"
