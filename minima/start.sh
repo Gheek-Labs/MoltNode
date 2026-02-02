@@ -1,7 +1,8 @@
 #!/bin/bash
 
-DATA_DIR="$(dirname "$0")/data"
-JAR_PATH="$(dirname "$0")/minima.jar"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+DATA_DIR="$SCRIPT_DIR/data"
+JAR_PATH="$SCRIPT_DIR/minima.jar"
 RPC_PORT=9005
 P2P_PORT=9001
 

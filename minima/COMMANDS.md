@@ -53,9 +53,9 @@ Complete command list for agent programmatic access via `http://localhost:9005/<
 | `scripts` | List scripts |
 | `newscript script:"RETURN TRUE"` | Add script |
 | `runscript script:"..."` | Run script |
-| `tutorial` | KISSVM tutorial |
+| `tutorial` | KISSVM scripts tutorial |
 
-## Maxima Messaging
+## Maxima P2P Messaging
 | Command | Description |
 |---------|-------------|
 | `maxima action:info` | Maxima info |
@@ -94,13 +94,24 @@ Complete command list for agent programmatic access via `http://localhost:9005/<
 | `webhooks` | Manage webhooks |
 | `quit` | Shutdown node |
 
+## Quick Access Scripts
+
+| Script | Purpose |
+|--------|---------|
+| `./get_maxima.sh` | Get current Maxima address (rotates frequently) |
+| `./cli.sh <cmd>` | Run any RPC command with formatted output |
+
 ## Example Agent Usage
 
 ```python
 import requests
+import subprocess
 
 def rpc(cmd):
     return requests.get(f"http://localhost:9005/{cmd}").json()
+
+# Get current Maxima address (recommended method)
+maxima_addr = subprocess.check_output(["./minima/get_maxima.sh"]).decode().strip()
 
 # Node status
 rpc("status")
@@ -116,8 +127,11 @@ rpc("tokencreate name:MyToken amount:1000000")
 ```
 
 ```bash
+# Get current Maxima address
+./minima/get_maxima.sh
+
 # Via curl
 curl "http://localhost:9005/status"
 curl "http://localhost:9005/balance"
-curl "http://localhost:9005/send%20address:MxG...%20amount:1"
+curl "http://localhost:9005/maxima%20action:info"
 ```
