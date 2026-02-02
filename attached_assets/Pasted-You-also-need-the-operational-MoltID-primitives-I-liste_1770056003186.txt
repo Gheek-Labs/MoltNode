@@ -1,0 +1,372 @@
+You also need the operational MoltID primitives I listed earlier:
+
+moltid_info.sh
+
+moltid_challenge.sh
+
+moltid_sign.sh
+
+moltid_verify.sh
+
+…and you need the docs bits: MOLTID.md, plus the copy/paste “Moltbook verification ritual”.
+
+Below is the full Phase-0 MoltID script set (8 scripts total), plus the doc content you can drop in.
+
+A. Full MoltID Script Set (8 scripts)
+0) Assumptions
+
+Your Minima CLI wrapper is at ./minima/cli.sh (adjust if different).
+
+You have jq installed (recommended). If you want zero-deps, tell me and I’ll rewrite without jq.
+
+1) moltid_setup_mls.sh
+
+Sets static MLS (or confirms it).
+
+#!/bin/bash
+set -euo pipefail
+
+CLI="${CLI:-./minima/cli.sh}"
+
+echo "== MoltID: Static MLS Setup =="
+
+TMP="$(mktemp)"
+$CLI maxima > "$TMP"
+
+STATIC="$(jq -r '.response.staticmls' "$TMP")"
+MLS="$(jq -r '.response.mls' "$TMP")"
+
+if [[ "$STATIC" == "true" ]]; then
+  echo "Static MLS already set:"
+  echo "$MLS"
+  exit 0
+fi
+
+echo ""
+echo "Static MLS is NOT set."
+echo "You must provide a server-based Minima P2P identity (Mx...@ip:port) to act as your Static MLS."
+echo ""
+
+read -r -p "Enter Static MLS host: " HOST
+
+$CLI maxextra action:staticmls host:"$HOST" | cat
+
+echo ""
+echo "✅ Static MLS configured."
+
+2) moltid_register_permanent.sh
+
+Guides the user to register addpermanent on the MLS node and prints MAX#.
+
+#!/bin/bash
+set -euo pipefail
+
+CLI="${CLI:-./minima/cli.sh}"
+
+echo "== MoltID: Permanent MAX# Registration =="
+
+TMP="$(mktemp)"
+$CLI maxima > "$TMP"
+
+PUB="$(jq -r '.response.publickey' "$TMP")"
+MLS="$(jq -r '.response.mls' "$TMP")"
+STATIC="$(jq -r '.response.staticmls' "$TMP")"
+
+if [[ "$STATIC" != "true" ]]; then
+  echo "❌ ERROR: Static MLS is not enabled."
+  echo "Run: ./moltid_setup_mls.sh"
+  exit 1
+fi
+
+echo ""
+echo "Maxima Public Key:"
+echo "$PUB"
+echo ""
+echo "Static MLS:"
+echo "$MLS"
+echo ""
+
+echo "Now run THIS on your STATIC MLS NODE (server):"
+echo "  maxextra action:addpermanent publickey:$PUB"
+echo ""
+read -r -p "Press ENTER once done on the MLS node..."
+
+echo ""
+echo "✅ Permanent MAX# Address:"
+echo "MAX#$PUB#$MLS"
+
+3) moltid_lockdown_contacts.sh
+
+Prevents unsolicited contact adds while still allowing MAX# messages.
+
+#!/bin/bash
+set -euo pipefail
+
+CLI="${CLI:-./minima/cli.sh}"
+
+echo "== MoltID: Contact Lockdown =="
+
+$CLI maxextra action:allowallcontacts enable:false | cat
+
+echo ""
+echo "✅ Contact requests now rejected by default."
+echo "To whitelist a trusted contact pubkey:"
+echo "  $CLI maxextra action:addallowed publickey:<PUBKEY>"
+
+4) moltid_claim.sh
+
+Prints MoltID + Reachability (and fails fast if static MLS not enabled).
+
+#!/bin/bash
+set -euo pipefail
+
+CLI="${CLI:-./minima/cli.sh}"
+
+echo "== MoltID: Claim Identity =="
+
+TMP="$(mktemp)"
+$CLI maxima > "$TMP"
+
+PUB="$(jq -r '.response.publickey' "$TMP")"
+MLS="$(jq -r '.response.mls' "$TMP")"
+STATIC="$(jq -r '.response.staticmls' "$TMP")"
+
+if [[ "$STATIC" != "true" ]]; then
+  echo "❌ MoltID incomplete: Static MLS not enabled."
+  echo "Run: ./moltid_setup_mls.sh"
+  exit 1
+fi
+
+echo ""
+echo "MoltID (Root):"
+echo "MOLTID:$PUB"
+echo ""
+echo "Public Reachability (Permanent MAX# format):"
+echo "MAX#$PUB#$MLS"
+echo ""
+echo "✅ MoltID claimed (cryptographic root + stable routing)."
+
+5) moltid_info.sh
+
+A clean “identity card” JSON output (what your evangelist agent can paste).
+
+#!/bin/bash
+set -euo pipefail
+
+CLI="${CLI:-./minima/cli.sh}"
+
+TMP="$(mktemp)"
+$CLI maxima > "$TMP"
+
+PUB="$(jq -r '.response.publickey' "$TMP")"
+MLS="$(jq -r '.response.mls' "$TMP")"
+STATIC="$(jq -r '.response.staticmls' "$TMP")"
+CONTACT="$(jq -r '.response.contact' "$TMP")"
+P2P="$(jq -r '.response.p2pidentity' "$TMP")"
+NAME="$(jq -r '.response.name' "$TMP")"
+
+MAXADDR="MAX#${PUB}#${MLS}"
+
+jq -n \
+  --arg moltid "MOLTID:${PUB}" \
+  --arg maxima_pubkey "$PUB" \
+  --arg maxima_name "$NAME" \
+  --arg staticmls "$STATIC" \
+  --arg mls "$MLS" \
+  --arg maxaddr "$MAXADDR" \
+  --arg contact "$CONTACT" \
+  --arg p2pidentity "$P2P" \
+  '{
+    moltid: $moltid,
+    maxima_publickey: $maxima_pubkey,
+    maxima_name: $maxima_name,
+    staticmls: ($staticmls == "true"),
+    mls: $mls,
+    permanent_max_address: $maxaddr,
+    current_contact_address: $contact,
+    p2pidentity: $p2pidentity
+  }'
+
+6) moltid_challenge.sh
+
+Generates a verifier challenge (hex). (Works on macOS/Linux.)
+
+#!/bin/bash
+set -euo pipefail
+
+# 32 bytes => 64 hex chars
+CHAL="$(LC_ALL=C tr -dc 'a-f0-9' </dev/urandom | head -c 64)"
+echo "0x$CHAL"
+
+
+(If you prefer challenge generation via Minima itself, say so and I’ll change it.)
+
+7) moltid_sign.sh
+
+Signs a challenge (or any hex blob) using Maxima.
+
+#!/bin/bash
+set -euo pipefail
+
+CLI="${CLI:-./minima/cli.sh}"
+
+if [[ $# -lt 1 ]]; then
+  echo "Usage: $0 <hex_data>"
+  echo "Example: $0 0xabc123..."
+  exit 1
+fi
+
+DATA="$1"
+
+$CLI maxsign data:"$DATA" | cat
+
+8) moltid_verify.sh
+
+Verifies a signature.
+
+#!/bin/bash
+set -euo pipefail
+
+CLI="${CLI:-./minima/cli.sh}"
+
+if [[ $# -lt 3 ]]; then
+  echo "Usage: $0 <hex_data> <publickey> <signature>"
+  echo "Example: $0 0xabc... 0x3081... 0xdeadbeef..."
+  exit 1
+fi
+
+DATA="$1"
+PUB="$2"
+SIG="$3"
+
+$CLI maxverify data:"$DATA" publickey:"$PUB" signature:"$SIG" | cat
+
+B. Add MOLTID.md (short RFC you can paste as-is)
+# MoltID (v0)
+
+## Purpose
+MoltID is a self-hosted, cryptographic identity primitive for agents running Minima + Maxima.
+It provides:
+- A single root identity per node
+- Proof-of-control (sign/verify)
+- Stable public reachability using a Permanent MAX# address (via Static MLS)
+
+## Definitions
+
+### Root Identity (MoltID)
+- MoltID Root = Maxima Public Key
+- Format: `MOLTID:<MAXIMA_PUBLIC_KEY>`
+
+This avoids treating L1 wallet addresses as identities (a node may have many wallet addresses).
+
+### Public Reachability (Permanent Address)
+- Permanent Address format:
+  `MAX#<MAXIMA_PUBLIC_KEY>#<STATIC_MLS_ADDRESS>`
+
+This allows anyone to send a Maxima message without being a contact.
+
+## Requirements for a "Claimed MoltID"
+A MoltID is considered CLAIMED only if:
+1) Static MLS is enabled
+2) Permanent MAX# address has been registered on the MLS node (`addpermanent`)
+3) The agent can complete a sign/verify proof-of-control
+
+## Proof-of-Control (Challenge/Response)
+1) Verifier generates a random challenge (32 bytes recommended).
+2) Agent signs the challenge with `maxsign`.
+3) Verifier verifies using `maxverify`.
+
+This proves the agent controls the MoltID private key.
+
+## Personas (Optional)
+An agent may operate multiple personas (handles/roles), but personas are NOT new identities.
+A persona is a signed profile object:
+- Signed by MoltID Root
+- Verifiable by anyone
+- Reputation attaches to MoltID Root, personas inherit reputation
+
+Suggested persona object fields:
+- handle
+- created_at
+- tags
+- policy (linked_to_root: true|false)
+
+## Contacts Model
+- Contacts are high-trust, limited connections (node performance considerations).
+- Use contacts for close collaborators.
+- Use Permanent MAX# for public inbound messaging (no contact required).
+- Disable unsolicited contact adds by default; whitelist as needed.
+
+C. Update AGENT_QUICKSTART.md (drop-in section)
+
+Add a new section like this:
+
+## MoltID Setup (Required for Stable Public Identity)
+
+Run these in order:
+
+1) Set Static MLS (stable routing)
+   - `./moltid_setup_mls.sh`
+
+2) Register Permanent MAX# address (run `addpermanent` on your MLS server)
+   - `./moltid_register_permanent.sh`
+
+3) Lock down unsolicited contacts (recommended)
+   - `./moltid_lockdown_contacts.sh`
+
+4) Claim MoltID and print identity
+   - `./moltid_claim.sh`
+   - `./moltid_info.sh`
+
+D. Add “Moltbook Verification Ritual” (copy/paste)
+
+Put this in AGENT_QUICKSTART.md or a new MOLTBOOK_VERIFICATION.md:
+
+## Moltbook Verification Ritual (Copy/Paste)
+
+### Step 1 — Post your MoltID
+Post on Moltbook:
+
+MoltID: <paste `moltid_info.sh` output OR just MOLTID:...>
+MAX#: <paste `MAX#...` permanent address>
+Mode: public messages OK, contacts closed by default.
+
+### Step 2 — Verifier sends a challenge
+Verifier replies with:
+
+CHALLENGE: 0x<64-hex>
+
+### Step 3 — You sign it
+Run:
+`./moltid_sign.sh 0x<challenge>`
+
+Paste the full output back.
+
+### Step 4 — Verifier verifies
+Verifier runs:
+`./moltid_verify.sh 0x<challenge> <publickey> <signature>`
+
+If true, verifier replies:
+✅ MoltID Verified (node-running, Maxima reachable)
+
+What you should add to the repo root (recommended file list)
+
+moltid_setup_mls.sh
+
+moltid_register_permanent.sh
+
+moltid_lockdown_contacts.sh
+
+moltid_claim.sh
+
+moltid_info.sh
+
+moltid_challenge.sh
+
+moltid_sign.sh
+
+moltid_verify.sh
+
+MOLTID.md
+
+(optional) MOLTBOOK_VERIFICATION.md

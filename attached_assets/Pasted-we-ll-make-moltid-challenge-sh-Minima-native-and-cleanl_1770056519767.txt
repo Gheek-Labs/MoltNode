@@ -1,0 +1,74 @@
+we’ll make moltid_challenge.sh Minima-native and cleanly normalized to a 32-byte (64 hex chars) 0x... output.
+
+Because Minima’s random output shape can vary a bit, the script below is robust: it will extract the first hex-looking value it finds, normalize it, and if it’s longer than 32 bytes it truncates; if it’s shorter, it will re-run until it has enough (rare, but safe).
+
+✅ moltid_challenge.sh (Minima RNG)
+#!/bin/bash
+# moltid_challenge.sh (Minima-native RNG)
+# Outputs a 32-byte hex challenge: 0x + 64 hex chars
+set -euo pipefail
+
+CLI="${CLI:-./minima/cli.sh}"
+
+# Extract a 0x-prefixed hex string from JSON (best-effort across versions)
+extract_hex_0x() {
+  # Prefer common fields, but also fall back to any string that looks like 0x[0-9a-f]+
+  jq -r '
+    (
+      .. | .hex? // .random? // .data? // .result? // empty
+    ) as $v
+    | if ($v|type) == "string" and ($v|test("^0x[0-9a-fA-F]+$")) then $v else empty end
+    ' 2>/dev/null
+}
+
+# Fallback: scan raw output for any 0x... hex token
+scan_hex_0x() {
+  grep -Eo '0x[0-9a-fA-F]+' | head -n 1 || true
+}
+
+need_64_hex_chars() {
+  local hex_no_prefix="$1"
+  # Remove any non-hex just in case
+  hex_no_prefix="$(echo "$hex_no_prefix" | tr -cd '0-9a-fA-F')"
+  local len="${#hex_no_prefix}"
+
+  if (( len >= 64 )); then
+    echo "0x${hex_no_prefix:0:64}"
+    return 0
+  fi
+
+  # If too short, return empty to trigger another RANDOM call
+  echo ""
+  return 0
+}
+
+# Try up to a few times (should succeed first try)
+for _ in {1..8}; do
+  OUT="$("$CLI" random)"
+  HEX="$(echo "$OUT" | extract_hex_0x || true)"
+
+  if [[ -z "$HEX" ]]; then
+    HEX="$(echo "$OUT" | scan_hex_0x || true)"
+  fi
+
+  if [[ -n "$HEX" ]]; then
+    CHAL="$(need_64_hex_chars "${HEX#0x}")"
+    if [[ -n "$CHAL" ]]; then
+      echo "$CHAL"
+      exit 0
+    fi
+  fi
+done
+
+echo "❌ Failed to generate a 32-byte challenge from Minima RANDOM output."
+echo "Raw last output:"
+echo "$OUT"
+exit 1
+
+Notes
+
+Uses only Minima ($CLI random) for entropy.
+
+Outputs a consistent 32-byte challenge in 0x format.
+
+Should work regardless of whether Minima returns { "random":"0x..." }, { "hex":"0x..." }, or another field — as long as the output contains a 0x... token.
