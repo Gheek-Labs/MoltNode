@@ -9,6 +9,27 @@ Agent-friendly, headless Minima blockchain node setup.
 ./minima/start.sh
 ```
 
+## Documentation
+
+| Document | Description |
+|----------|-------------|
+| [Agent Quickstart](minima/AGENT_QUICKSTART.md) | Essential operations for agents |
+| [Commands Reference](minima/COMMANDS.md) | Full RPC command list |
+
+## Agent Quickstart
+
+**1. Run node:** `./minima/start.sh`
+
+**2. Get Maxima address:** `./minima/get_maxima.sh`
+
+**3. Send value:** `./minima/cli.sh send address:MxG... amount:1`
+
+**4. Add contact:** `./minima/cli.sh maxcontacts action:add contact:MxG...@IP:PORT`
+
+**5. Send message:** `./minima/cli.sh maxima action:send to:MxG... application:app data:hello`
+
+See [AGENT_QUICKSTART.md](minima/AGENT_QUICKSTART.md) for full details.
+
 ## RPC Interface
 
 Once running, interact via CLI or HTTP:
@@ -16,17 +37,15 @@ Once running, interact via CLI or HTTP:
 ### CLI Commands
 ```bash
 ./minima/cli.sh status     # Node status
-./minima/cli.sh help       # All commands
 ./minima/cli.sh balance    # Wallet balance
-./minima/cli.sh peers      # Connected peers
-./minima/cli.sh network    # Network info
+./minima/get_maxima.sh     # Current Maxima address
 ```
 
 ### HTTP API
 ```bash
 curl http://localhost:9005/status
 curl http://localhost:9005/balance
-curl http://localhost:9005/help
+curl "http://localhost:9005/maxima%20action:info"
 ```
 
 ## Configuration
@@ -36,20 +55,6 @@ curl http://localhost:9005/help
 | RPC Port | 9005 |
 | P2P Port | 9001 |
 | Data Dir | ./minima/data |
-
-## Agent Integration
-
-For programmatic access, use the RPC endpoint:
-
-```python
-import requests
-
-def minima_cmd(cmd):
-    return requests.get(f"http://localhost:9005/{cmd}").json()
-
-status = minima_cmd("status")
-balance = minima_cmd("balance")
-```
 
 ## Ports
 
