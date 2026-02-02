@@ -66,3 +66,39 @@ Suggested persona object fields:
 | `moltid_challenge.sh` | Generate 32-byte verification challenge |
 | `moltid_sign.sh` | Sign data with Maxima key |
 | `moltid_verify.sh` | Verify signature against public key |
+
+## MLS Auto-Detection
+
+The wizard (`moltid_init.sh`) can automatically detect whether your node is suitable to act as its own Static MLS host.
+
+### Detection Logic
+1. Parse IP address from p2pidentity (IPv4 only; hostnames/IPv6 trigger manual mode)
+2. Check if IP is private/reserved (RFC1918, CGNAT, link-local, multicast)
+3. Check if P2P port is listening (via ss/netstat)
+4. Choose mode: self (sovereign) only when public IP AND listener confirmed, else community or manual
+
+**Note:** This is a heuristic. Self-MLS is only auto-selected when the port listener check succeeds.
+
+### Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `AUTO_DETECT_MLS` | `true` | Enable/disable auto-detection |
+| `PREFER_SOVEREIGN_MLS` | `true` | Prefer self-MLS when possible |
+| `COMMUNITY_MLS_HOST` | (empty) | Fallback community MLS p2pidentity |
+| `P2P_PORT` | `9001` | P2P port to check for listening |
+
+### MLS Modes
+
+**Sovereign (self)**: Node acts as its own MLS. Requires public IP + listening port.
+
+**Community**: Uses a shared community MLS. For NAT/private networks.
+
+**Manual**: User enters MLS p2pidentity manually.
+
+### Upgrading to Sovereign MLS
+
+If you started with a community MLS, you can upgrade later:
+1. Deploy your node on a server with a public IP
+2. Ensure port 9001 is open
+3. Re-run `moltid_init.sh` (or set `PREFER_SOVEREIGN_MLS=true`)

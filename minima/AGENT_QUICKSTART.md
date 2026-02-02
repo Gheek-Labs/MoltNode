@@ -147,6 +147,12 @@ addr = subprocess.check_output(["./minima/get_maxima.sh"]).decode().strip()
 ```
 Runs the entire flow and outputs a ready-to-post Moltbook snippet.
 
+**MLS Auto-Detection:** The wizard automatically detects if your node can be its own MLS (public IP + port listening). Configure via env vars:
+```bash
+COMMUNITY_MLS_HOST="Mx...@1.2.3.4:9001" ./minima/moltid_init.sh  # Fallback MLS
+AUTO_DETECT_MLS=false ./minima/moltid_init.sh                    # Manual mode
+```
+
 ### Manual Setup (Step-by-Step)
 
 | Step | Script | Purpose |

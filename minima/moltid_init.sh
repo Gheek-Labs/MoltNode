@@ -4,6 +4,11 @@ set -euo pipefail
 CLI="${CLI:-./minima/cli.sh}"
 AUTO_LOCKDOWN="${AUTO_LOCKDOWN:-true}"
 
+P2P_PORT="${P2P_PORT:-9001}"
+COMMUNITY_MLS_HOST="${COMMUNITY_MLS_HOST:-}"
+AUTO_DETECT_MLS="${AUTO_DETECT_MLS:-true}"
+PREFER_SOVEREIGN_MLS="${PREFER_SOVEREIGN_MLS:-true}"
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 need_cmd() {
@@ -56,6 +61,59 @@ pause() {
   read -r -p "Press ENTER to continue..."
 }
 
+is_valid_ipv4() {
+  local ip="$1"
+  [[ "$ip" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]
+}
+
+is_private_ip() {
+  local ip="$1"
+  if ! is_valid_ipv4 "$ip"; then
+    return 0
+  fi
+  [[ "$ip" =~ ^10\. ]] && return 0
+  [[ "$ip" =~ ^127\. ]] && return 0
+  [[ "$ip" =~ ^192\.168\. ]] && return 0
+  [[ "$ip" =~ ^169\.254\. ]] && return 0
+  [[ "$ip" =~ ^0\. ]] && return 0
+  if [[ "$ip" =~ ^172\.([0-9]+)\. ]]; then
+    local b="${BASH_REMATCH[1]}"
+    (( b >= 16 && b <= 31 )) && return 0
+  fi
+  if [[ "$ip" =~ ^100\.([0-9]+)\. ]]; then
+    local b="${BASH_REMATCH[1]}"
+    (( b >= 64 && b <= 127 )) && return 0
+  fi
+  [[ "$ip" =~ ^22[4-9]\. ]] && return 0
+  [[ "$ip" =~ ^23[0-9]\. ]] && return 0
+  [[ "$ip" =~ ^24[0-9]\. ]] && return 0
+  [[ "$ip" =~ ^25[0-5]\. ]] && return 0
+  return 1
+}
+
+extract_ip_from_p2pidentity() {
+  local ident="$1"
+  echo "$ident" | sed -nE 's/.*@([^:]+):([0-9]+).*/\1/p'
+}
+
+extract_port_from_p2pidentity() {
+  local ident="$1"
+  echo "$ident" | sed -nE 's/.*@([^:]+):([0-9]+).*/\2/p'
+}
+
+is_listening_on_port() {
+  local port="$1"
+  if command -v ss >/dev/null 2>&1; then
+    ss -ltn 2>/dev/null | grep -qE ":$port\s"
+    return $?
+  elif command -v netstat >/dev/null 2>&1; then
+    netstat -ltn 2>/dev/null | grep -qE ":$port\s"
+    return $?
+  else
+    return 2
+  fi
+}
+
 banner "MoltID Init Wizard"
 echo "CLI: $CLI"
 
@@ -85,16 +143,88 @@ echo "Contact (rotates):  $CONTACT"
 echo "P2P identity:       $P2P"
 
 banner "Step 2/6: Ensure Static MLS"
+
 if [[ "$STATIC" == "true" ]]; then
   echo "Static MLS already enabled."
 else
   echo "Static MLS is NOT enabled."
   echo ""
-  echo "You need a server-based Minima node (port 9001 by default) to act as your Static MLS."
-  echo "Paste its P2P identity in this format:"
-  echo "  Mx...@ip:port"
-  echo ""
-  read -r -p "Enter Static MLS host P2P identity: " HOST
+
+  MLS_MODE=""
+  REASON=""
+
+  if [[ "$AUTO_DETECT_MLS" == "true" ]]; then
+    IP="$(extract_ip_from_p2pidentity "$P2P")"
+    PORT_DETECTED="$(extract_port_from_p2pidentity "$P2P")"
+    [[ -n "$PORT_DETECTED" ]] && P2P_PORT="$PORT_DETECTED"
+
+    if [[ -z "$IP" ]]; then
+      REASON="Could not parse IP from p2pidentity."
+      MLS_MODE="manual"
+    elif is_private_ip "$IP"; then
+      REASON="p2pidentity uses private/reserved IP ($IP) - not suitable as Static MLS host."
+      if [[ -n "$COMMUNITY_MLS_HOST" ]]; then
+        MLS_MODE="community"
+      else
+        MLS_MODE="manual"
+      fi
+    else
+      LISTEN_STATUS=0
+      if is_listening_on_port "$P2P_PORT"; then
+        REASON="Public IP ($IP) and port $P2P_PORT appears to be listening."
+        LISTEN_STATUS=0
+      else
+        LISTEN_STATUS=$?
+        if [[ "$LISTEN_STATUS" -eq 1 ]]; then
+          REASON="Public IP ($IP) but port $P2P_PORT does not appear to be listening locally."
+        else
+          REASON="Public IP ($IP); cannot confirm listening port (ss/netstat unavailable)."
+        fi
+      fi
+
+      if [[ "$PREFER_SOVEREIGN_MLS" == "true" && "$LISTEN_STATUS" -eq 0 ]]; then
+        MLS_MODE="self"
+      elif [[ -n "$COMMUNITY_MLS_HOST" ]]; then
+        MLS_MODE="community"
+      else
+        MLS_MODE="manual"
+      fi
+    fi
+
+    echo "Auto-detect result: $REASON"
+    echo ""
+  else
+    MLS_MODE="manual"
+  fi
+
+  if [[ "$MLS_MODE" == "self" ]]; then
+    echo "Selecting SOVEREIGN route: this node will act as its own Static MLS."
+    echo "Using host (this node p2pidentity):"
+    echo "  $P2P"
+    HOST="$P2P"
+
+  elif [[ "$MLS_MODE" == "community" ]]; then
+    echo "Selecting COMMUNITY MLS route (recommended for non-server environments)."
+    echo "Using community MLS host:"
+    echo "  $COMMUNITY_MLS_HOST"
+    echo ""
+    echo "You can upgrade to full sovereignty later by running your own MLS server."
+    HOST="$COMMUNITY_MLS_HOST"
+
+  else
+    echo "Manual selection required."
+    if [[ -n "$COMMUNITY_MLS_HOST" ]]; then
+      echo "Press ENTER to use community MLS, or paste your own server p2pidentity:"
+      echo "  $COMMUNITY_MLS_HOST"
+      read -r -p "Enter Static MLS host P2P identity: " HOST
+      [[ -z "$HOST" ]] && HOST="$COMMUNITY_MLS_HOST"
+    else
+      echo "Paste your server p2pidentity in this format: Mx...@ip:port"
+      read -r -p "Enter Static MLS host P2P identity: " HOST
+      [[ -z "$HOST" ]] && { echo "ERROR: No host provided."; exit 1; }
+    fi
+  fi
+
   run_cli maxextra action:staticmls host:"$HOST"
 
   MAXF="$(fetch_maxima)"
@@ -102,11 +232,12 @@ else
   MLS="$(get_field "$MAXF" '.response.mls')"
 
   if [[ "$STATIC" != "true" ]]; then
-    echo "ERROR: Failed to enable Static MLS (staticmls still false)."
+    echo "ERROR: Failed to enable Static MLS."
     exit 1
   fi
-  echo "Static MLS enabled."
-  echo "MLS is now: $MLS"
+  echo ""
+  echo "Static MLS enabled. MLS:"
+  echo "  $MLS"
 fi
 
 MAXADDR="MAX#${PUB}#${MLS}"
