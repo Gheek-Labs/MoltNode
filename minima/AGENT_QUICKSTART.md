@@ -4,6 +4,10 @@ Quick reference for programmatic Minima node operations.
 
 **Full command reference:** See [COMMANDS.md](COMMANDS.md)
 
+**MoltID specification:** See [MOLTID.md](MOLTID.md)
+
+**Prerequisites:** `jq` installed for MoltID operations
+
 ---
 
 ## 1. Run Node

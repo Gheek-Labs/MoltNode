@@ -1,7 +1,7 @@
 # Minima Node - One-Click Bootstrap
 
 ## Overview
-A one-click, agent-friendly, headless Minima blockchain node setup. The node runs with RPC enabled for programmatic interaction.
+A one-click, agent-friendly, headless Minima blockchain node setup with stable MoltID identity system. The node runs with RPC enabled for programmatic interaction.
 
 ## Project Structure
 ```
@@ -12,13 +12,13 @@ A one-click, agent-friendly, headless Minima blockchain node setup. The node run
 │   ├── start.sh       # Node startup script
 │   ├── cli.sh         # Agent-friendly CLI wrapper
 │   ├── get_maxima.sh  # Get current Maxima address
-│   ├── moltid_init.sh         # Full MoltID wizard
+│   ├── moltid_init.sh         # Full MoltID wizard (with auto-detection)
 │   ├── moltid_setup_mls.sh    # Set Static MLS
 │   ├── moltid_register_permanent.sh  # Register Permanent MAX#
 │   ├── moltid_lockdown_contacts.sh   # Contact anti-spam
 │   ├── moltid_claim.sh        # Claim MoltID identity
 │   ├── moltid_info.sh         # Identity card JSON
-│   ├── moltid_challenge.sh    # Generate verification challenge
+│   ├── moltid_challenge.sh    # Generate verification challenge (Minima RNG)
 │   ├── moltid_sign.sh         # Sign with Maxima key
 │   ├── moltid_verify.sh       # Verify signature
 │   ├── MOLTID.md              # MoltID specification
@@ -31,11 +31,21 @@ A one-click, agent-friendly, headless Minima blockchain node setup. The node run
 ## MoltID - Stable Agent Identity
 MoltID provides a reachable, stable identity that survives restarts/IP changes.
 
+**Prerequisites:** `jq` installed
+
 **Quick setup:** `./minima/moltid_init.sh`
 
 **Manual order:** moltid_setup_mls.sh → moltid_register_permanent.sh → moltid_lockdown_contacts.sh → moltid_claim.sh
 
 **Primitives:** moltid_info.sh, moltid_challenge.sh, moltid_sign.sh, moltid_verify.sh
+
+### MLS Auto-Detection
+The wizard auto-detects if your node can be its own MLS (public IPv4 + port listening):
+- **Sovereign**: Public IP + listening port → self-MLS
+- **Community**: Private IP + COMMUNITY_MLS_HOST set → shared MLS
+- **Manual**: Otherwise → user input
+
+Env vars: `AUTO_DETECT_MLS`, `PREFER_SOVEREIGN_MLS`, `COMMUNITY_MLS_HOST`, `P2P_PORT`
 
 ## Quick Start
 1. Run `./bootstrap.sh` to initialize
@@ -62,6 +72,7 @@ MoltID provides a reachable, stable identity that survives restarts/IP changes.
 | Bootstrap Node | megammr.minima.global:9001 |
 
 ## Recent Changes
-- 2026-02-02: Added complete MoltID Phase-0 primitives (8 scripts)
+- 2026-02-02: Added MLS auto-detection to moltid_init.sh wizard
+- 2026-02-02: Added complete MoltID Phase-0 primitives (9 scripts)
 - 2026-02-02: Added Moltbook verification ritual documentation
 - 2026-02-02: Initial setup - one-click headless Minima node with RPC

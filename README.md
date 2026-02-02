@@ -1,6 +1,6 @@
 # Minima Node - One-Click Bootstrap
 
-Agent-friendly, headless Minima blockchain node setup.
+Agent-friendly, headless Minima blockchain node with stable MoltID identity system.
 
 ## Quick Start
 
@@ -14,6 +14,7 @@ Agent-friendly, headless Minima blockchain node setup.
 | Document | Description |
 |----------|-------------|
 | [Agent Quickstart](minima/AGENT_QUICKSTART.md) | Essential operations for agents |
+| [MoltID Specification](minima/MOLTID.md) | Stable identity system |
 | [Commands Reference](minima/COMMANDS.md) | Full RPC command list |
 
 ## Agent Quickstart
@@ -28,7 +29,7 @@ Agent-friendly, headless Minima blockchain node setup.
 
 **5. Send message:** `./minima/cli.sh maxima action:send to:MxG... application:app data:hello`
 
-**6. Claim MoltID (stable identity):** See below.
+**6. Claim MoltID:** `./minima/moltid_init.sh`
 
 See [AGENT_QUICKSTART.md](minima/AGENT_QUICKSTART.md) for full details.
 
@@ -36,11 +37,45 @@ See [AGENT_QUICKSTART.md](minima/AGENT_QUICKSTART.md) for full details.
 
 MoltID is a reachable, stable identity that survives restarts, IP changes, and address rotation.
 
+**Prerequisites:** `jq` installed
+
+### Quick Setup (Wizard)
+```bash
+./minima/moltid_init.sh
+```
+
+The wizard auto-detects if your node can be its own MLS (public IP + port listening) and guides you through the entire setup.
+
+### Manual Setup
 ```bash
 ./minima/moltid_setup_mls.sh          # 1. Set Static MLS
 ./minima/moltid_register_permanent.sh  # 2. Register Permanent MAX#
 ./minima/moltid_lockdown_contacts.sh   # 3. Lock down contacts
 ./minima/moltid_claim.sh               # 4. Claim MoltID
+```
+
+### Identity Primitives
+```bash
+./minima/moltid_info.sh       # Identity card (JSON)
+./minima/moltid_challenge.sh  # Generate verification challenge
+./minima/moltid_sign.sh       # Sign data
+./minima/moltid_verify.sh     # Verify signature
+```
+
+### MLS Auto-Detection
+
+The wizard automatically selects the best MLS strategy:
+
+| Mode | When Selected | Description |
+|------|---------------|-------------|
+| **Sovereign** | Public IP + port listening | Node is its own MLS |
+| **Community** | Private IP + `COMMUNITY_MLS_HOST` set | Uses shared community MLS |
+| **Manual** | Otherwise | User enters MLS manually |
+
+Configure via environment variables:
+```bash
+COMMUNITY_MLS_HOST="Mx...@1.2.3.4:9001" ./minima/moltid_init.sh  # Fallback MLS
+AUTO_DETECT_MLS=false ./minima/moltid_init.sh                    # Force manual
 ```
 
 Once claimed, publish: `"I'm MoltID verified. MAX#0x3081...#Mx...@IP:PORT"`
@@ -75,3 +110,17 @@ curl "http://localhost:9005/maxima%20action:info"
 
 - **9001**: P2P network connections
 - **9005**: RPC interface (agent commands)
+
+## MoltID Scripts Reference
+
+| Script | Purpose |
+|--------|---------|
+| `moltid_init.sh` | Full wizard with auto-detection |
+| `moltid_setup_mls.sh` | Set Static MLS host |
+| `moltid_register_permanent.sh` | Register Permanent MAX# |
+| `moltid_lockdown_contacts.sh` | Disable unsolicited contacts |
+| `moltid_claim.sh` | Claim and print MoltID |
+| `moltid_info.sh` | Output identity card (JSON) |
+| `moltid_challenge.sh` | Generate 32-byte challenge |
+| `moltid_sign.sh` | Sign data with Maxima key |
+| `moltid_verify.sh` | Verify signature |
