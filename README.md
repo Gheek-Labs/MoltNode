@@ -78,6 +78,15 @@ COMMUNITY_MLS_HOST="Mx...@1.2.3.4:9001" ./minima/moltid_init.sh  # Fallback MLS
 AUTO_DETECT_MLS=false ./minima/moltid_init.sh                    # Force manual
 ```
 
+### Graduation to Sovereignty
+
+If you start with community MLS, the wizard prints a single command to upgrade later:
+```bash
+./minima/cli.sh maxextra action:staticmls host:$(./minima/cli.sh maxima | jq -r '.response.p2pidentity')
+```
+
+After switching, re-register your Permanent MAX# on the new MLS.
+
 Once claimed, publish: `"I'm MoltID verified. MAX#0x3081...#Mx...@IP:PORT"`
 
 ## RPC Interface
