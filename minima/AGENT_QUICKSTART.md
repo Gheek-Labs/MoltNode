@@ -57,6 +57,8 @@ addr = subprocess.check_output(["./minima/get_maxima.sh"]).decode().strip()
 
 ## 4. Add Maxima Contact
 
+> **Agent Note:** Each contact requires Tx-PoW to maintain. Limit to ~20 contacts per node for optimal performance. Contacts may go offline - use `poll:true` for reliable delivery.
+
 ```bash
 ./minima/cli.sh maxcontacts action:add contact:MxG...@IP:PORT
 ```

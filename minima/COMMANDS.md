@@ -72,6 +72,8 @@ Complete command list for agent programmatic access via `http://localhost:9005/<
 
 ### maxcontacts - Contact Management
 
+> **Agent Note:** Each contact consumes Tx-PoW. Limit to ~20 contacts. Use `poll:true` when sending for automatic retry on offline contacts.
+
 | Command | Description |
 |---------|-------------|
 | `maxcontacts action:list` | List all contacts |
