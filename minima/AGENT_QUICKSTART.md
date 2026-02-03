@@ -292,7 +292,56 @@ curl "http://localhost:9005/maxima%20action:info"
 
 ---
 
-## 11. Python Agent Example
+## 11. MDS (MiniDapp System) - Agent Access
+
+MDS runs on port 9003 with SSL encryption. Use these scripts to manage and interact with MiniDapps like Soko.
+
+### Prerequisites
+- `MDS_PASSWORD` environment variable set
+- `jq` installed
+
+### List Installed MiniDapps
+```bash
+./minima/mds_list.sh           # JSON output
+./minima/mds_list.sh --table   # Formatted table
+./minima/mds_list.sh --uid     # UIDs only
+```
+
+### Install a MiniDapp
+```bash
+./minima/mds_install.sh /path/to/soko.mds.zip
+./minima/mds_install.sh https://example.com/soko.mds.zip
+./minima/mds_install.sh soko.mds.zip write   # With write permission
+```
+
+**Security Warning:** Only grant `write` permission to MiniDapps you fully trust. Write access allows the MiniDapp to execute commands on your node.
+
+### Call MiniDapp API
+```bash
+./minima/mds_api.sh soko /api/list
+./minima/mds_api.sh soko /service.js '{"action":"getorders"}'
+./minima/mds_api.sh 0xABC123 /api/buy '{"nft":"0x..."}'
+```
+
+### Direct RPC Commands
+```bash
+./minima/cli.sh mds action:list              # List MiniDapps
+./minima/cli.sh mds action:install file:x.mds.zip
+./minima/cli.sh mds action:uninstall uid:0x...
+./minima/cli.sh mds action:permission uid:0x... trust:write
+./minima/cli.sh mds action:pending           # View pending commands
+./minima/cli.sh mds action:accept uid:0x...  # Accept pending
+```
+
+### Access MDS Web UI
+```
+https://localhost:9003
+```
+Username: `minima`, Password: your `MDS_PASSWORD`
+
+---
+
+## 12. Python Agent Example
 
 ```python
 import requests

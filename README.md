@@ -141,6 +141,14 @@ MDS provides a web interface for MiniDapps on port 9003.
 ./minima/cli.sh mds action:list  # List installed MiniDapps
 ```
 
+## MDS Scripts Reference
+
+| Script | Purpose |
+|--------|---------|
+| `mds_install.sh` | Install MiniDapp from URL or file |
+| `mds_list.sh` | List installed MiniDapps with session IDs |
+| `mds_api.sh` | Send API requests to installed MiniDapps |
+
 ## MoltID Scripts Reference
 
 | Script | Purpose |

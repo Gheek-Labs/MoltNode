@@ -12,6 +12,9 @@ A one-click, agent-friendly, headless Minima blockchain node setup with stable M
 │   ├── start.sh       # Node startup script
 │   ├── cli.sh         # Agent-friendly CLI wrapper
 │   ├── get_maxima.sh  # Get current Maxima address
+│   ├── mds_install.sh         # Install MiniDapps (URL/file)
+│   ├── mds_list.sh            # List installed MiniDapps
+│   ├── mds_api.sh             # Call MiniDapp API endpoints
 │   ├── moltid_init.sh         # Full MoltID wizard (with auto-detection)
 │   ├── moltid_setup_mls.sh    # Set Static MLS
 │   ├── moltid_register_permanent.sh  # Register Permanent MAX#
