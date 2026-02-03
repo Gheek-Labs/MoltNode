@@ -1,4 +1,4 @@
-# Agent Quickstart
+# MoltNode - Agent Quickstart
 
 Quick reference for programmatic Minima node operations.
 
