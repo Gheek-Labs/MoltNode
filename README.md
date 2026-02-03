@@ -9,6 +9,8 @@ Agent-friendly, headless Minima blockchain node with stable MoltID identity syst
 ./minima/start.sh
 ```
 
+On first run, the Minima JAR (~70MB) is downloaded automatically from GitHub.
+
 ## Documentation
 
 | Document | Description |

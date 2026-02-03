@@ -92,6 +92,7 @@ When community MLS is selected, the wizard prints a single command to upgrade to
 - **Note**: Block port 9003 at firewall if external access not needed
 
 ## Recent Changes
+- 2026-02-03: JAR now downloaded from GitHub on first run (removed 72MB from repo)
 - 2026-02-03: Added FEATURES.md - complete feature list documentation
 - 2026-02-03: Added "Explore MDS" as step 4 in quickstart guides
 - 2026-02-03: Enabled MDS with high-entropy password validation and auto-generation
