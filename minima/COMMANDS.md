@@ -125,9 +125,15 @@ Complete command list for agent programmatic access via `http://localhost:9005/<
 | `vault` | `action:seed\|wipekeys\|restorekeys\|passwordlock\|passwordunlock` `seed:` `phrase:` - **BE CAREFUL.** Wipe/Restore/Encrypt/Decrypt your private keys |
 | `archive` | Archive sync |
 
-## MiniDApps
+## MiniDApps (MDS)
+
+MDS (MiniDapp System) runs on port **9003** (P2P port + 2) with SSL.
+
+**Security:** MDS requires password authentication. Access via `https://localhost:9003`
+
 | Command | Description |
 |---------|-------------|
+| `mds` | Show MDS status and password |
 | `mds action:list` | List MiniDApps |
 | `mds action:install file:app.mds.zip` | Install MiniDApp |
 | `mds action:uninstall uid:...` | Uninstall MiniDApp |

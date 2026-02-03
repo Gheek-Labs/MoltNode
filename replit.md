@@ -75,10 +75,20 @@ When community MLS is selected, the wizard prints a single command to upgrade to
 |---------|-------|
 | RPC Port | 9005 |
 | P2P Port | 9001 |
+| MDS Port | 9003 (SSL, password-protected) |
 | Data Dir | ./minima/data |
 | Bootstrap Node | megammr.minima.global:9001 |
 
+## MDS (MiniDapp System)
+- **Port**: 9003 (SSL-encrypted, password-authenticated)
+- **Security**: High-entropy password required (16+ chars, mixed case, numbers, symbols)
+- **Access**: `https://localhost:9003` (or `https://<server-ip>:9003` if exposed)
+- **Password**: Set via `MDS_PASSWORD` secret, or auto-generated on startup
+- **Note**: Block port 9003 at firewall if external access not needed
+
 ## Recent Changes
+- 2026-02-03: Enabled MDS with high-entropy password validation and auto-generation
+- 2026-02-03: Restructured AGENT_QUICKSTART.md (backup → MoltID → operations)
 - 2026-02-02: Added MLS auto-detection to moltid_init.sh wizard
 - 2026-02-02: Added complete MoltID Phase-0 primitives (9 scripts)
 - 2026-02-02: Added Moltbook verification ritual documentation
