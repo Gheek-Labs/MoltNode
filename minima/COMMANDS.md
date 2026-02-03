@@ -135,7 +135,7 @@ Complete command list for agent programmatic access via `http://localhost:9005/<
 ## System
 | Command | Description |
 |---------|-------------|
-| `help` | Full help |
+| `help` | Full help. Use `help command:<cmd>` for detailed info on a specific command (e.g., `help command:status`) |
 | `rpc` | RPC settings |
 | `webhooks` | Manage webhooks |
 | `quit` | Shutdown node |
