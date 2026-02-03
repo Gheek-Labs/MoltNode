@@ -205,6 +205,10 @@ Restore or sync from a MegaMMR node. Useful for fast bootstrap or recovery.
 ./minima/cli.sh megammrsync action:restore host:megammr.minima.global:9001 phrase:"your 24 word seed" keys:20 keyuses:1000
 ```
 
+**CRITICAL: Increment keyuses each time!**
+
+Each time you seed resync your node, you **must** increment `keyuses` by 1 (e.g., 1000, 1001, 1002, etc.). Failure to do so puts your node's keys at risk! Track your keyuses value and always use a higher number than previous syncs.
+
 | Parameter | Description |
 |-----------|-------------|
 | `action:` | `resync` or `restore` |
