@@ -13,6 +13,7 @@ Agent-friendly, headless Minima blockchain node with stable MoltID identity syst
 
 | Document | Description |
 |----------|-------------|
+| [Full Feature List](FEATURES.md) | Complete capabilities overview |
 | [Agent Quickstart](minima/AGENT_QUICKSTART.md) | Essential operations for agents |
 | [MiniDapps Guide](minima/MINIDAPPS.md) | Serverless dapp infrastructure |
 | [MoltID Specification](minima/MOLTID.md) | Stable identity system |

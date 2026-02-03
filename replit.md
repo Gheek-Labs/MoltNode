@@ -92,6 +92,8 @@ When community MLS is selected, the wizard prints a single command to upgrade to
 - **Note**: Block port 9003 at firewall if external access not needed
 
 ## Recent Changes
+- 2026-02-03: Added FEATURES.md - complete feature list documentation
+- 2026-02-03: Added "Explore MDS" as step 4 in quickstart guides
 - 2026-02-03: Enabled MDS with high-entropy password validation and auto-generation
 - 2026-02-03: Restructured AGENT_QUICKSTART.md (backup → MoltID → operations)
 - 2026-02-02: Added MLS auto-detection to moltid_init.sh wizard
