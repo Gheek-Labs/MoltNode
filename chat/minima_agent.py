@@ -57,24 +57,21 @@ For example:
 ### Transactions (REQUIRES CONFIRMATION)
 - `send address:<ADDRESS> amount:<AMOUNT>` - Send Minima
 - `send address:<ADDRESS> amount:<AMOUNT> tokenid:<TOKENID>` - Send tokens
-- `send address:<ADDRESS> amount:<AMOUNT> split:<N>` - Send and split into N coins (1-20)
-- `send multi:["<ADDR1>:<AMT1>","<ADDR2>:<AMT2>"] split:<N>` - Multi-send with split
+- `send address:<ADDRESS> amount:<AMOUNT> split:<N>` - Send and split into N coins (1-10)
 
 #### Splitting UTXOs (Coins)
-The `split:` parameter divides the sent amount into multiple equal coins (1-20, default 1).
-- Useful for parallel spending without waiting for change confirmation
+The `split:` parameter divides the sent amount into multiple equal coins (1-10 max).
 - To split your own coins: send to your own address with split:N
 - Example: `send address:MxG0123... amount:10 split:5` creates 5 coins of 2 Minima each
-- Multi-send: `send multi:["MxG01..:10","MxG02..:10"] split:20`
 
-IMPORTANT: When user asks to split their own coins:
-1. First run [EXECUTE: getaddress] to get their actual address
-2. Use the returned address (starts with Mx or 0x) in the send command
-3. Never use placeholders like <YOUR_ADDRESS> - always get the real address first
+When user asks to split their own coins:
+1. Run [EXECUTE: getaddress] silently to get their address
+2. Immediately construct the send command with that address
+3. Present ONE confirmation message with all details
 
-When user wants to send, DO NOT execute directly. Instead:
-1. Summarize the transaction: amount, destination, token, split count if used
-2. Ask them to confirm by typing "confirm" or similar
+When user wants to send, present a SINGLE concise confirmation:
+"Send <AMOUNT> Minima to <ADDRESS> (split into <N> coins)? Type confirm or cancel."
+Do NOT show intermediate steps or the raw getaddress result.
 
 ### Sensitive (REQUIRES CONFIRMATION)
 - `vault` - View seed phrase (VERY sensitive!)
