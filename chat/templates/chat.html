@@ -71,44 +71,43 @@
         }
         
         function formatMessage(text) {
-            // Handle <details> blocks first (preserve them)
-            const detailsPattern = /<details>([\s\S]*?)<\/details>/g;
-            const detailsBlocks = [];
-            text = text.replace(detailsPattern, (match) => {
-                detailsBlocks.push(match);
-                return `__DETAILS_${detailsBlocks.length - 1}__`;
+            // Safe HTML escape
+            const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+            
+            // Use unique placeholders
+            const blocks = [];
+            const ph = html => { blocks.push(html); return `<!--B${blocks.length-1}-->`; };
+            
+            // 1. Extract <details> blocks, process contents recursively
+            text = text.replace(/<details>([\s\S]*?)<\/details>/g, (_, inner) => {
+                // Process code blocks inside
+                inner = inner.replace(/```(\w+)?\n?([\s\S]*?)```/g, (_, lang, code) => 
+                    `<pre><code>${esc(code)}</code></pre>`
+                );
+                return ph(`<details>${inner}</details>`);
             });
             
-            // Handle code blocks ```json ... ```
-            const codeBlockPattern = /```(\w+)?\n?([\s\S]*?)```/g;
-            const codeBlocks = [];
-            text = text.replace(codeBlockPattern, (match, lang, code) => {
-                codeBlocks.push(`<pre><code>${code.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</code></pre>`);
-                return `__CODE_${codeBlocks.length - 1}__`;
-            });
+            // 2. Extract fenced code blocks
+            text = text.replace(/```(\w+)?\n?([\s\S]*?)```/g, (_, lang, code) => 
+                ph(`<pre><code>${esc(code)}</code></pre>`)
+            );
             
-            // Escape remaining HTML
-            text = text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            // 3. Extract markdown links (escape url and label)
+            text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, label, url) => 
+                ph(`<a href="${esc(url.trim())}" target="_blank" rel="noopener">${esc(label)}</a>`)
+            );
             
-            // Format markdown
+            // 4. Escape remaining text
+            text = esc(text);
+            
+            // 5. Format inline markdown
             text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
             text = text.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-            text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
             text = text.replace(/\n/g, '<br>');
             
-            // Restore code blocks
-            codeBlocks.forEach((block, i) => {
-                text = text.replace(`__CODE_${i}__`, block);
-            });
-            
-            // Restore details blocks with proper formatting
-            detailsBlocks.forEach((block, i) => {
-                const formatted = block
-                    .replace(/<summary>(.*?)<\/summary>/g, '<summary>$1</summary>')
-                    .replace(/```(\w+)?\n?([\s\S]*?)```/g, (m, lang, code) => 
-                        `<pre><code>${code.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</code></pre>`
-                    );
-                text = text.replace(`__DETAILS_${i}__`, formatted);
+            // 6. Restore blocks
+            blocks.forEach((html, i) => {
+                text = text.replace(`&lt;!--B${i}--&gt;`, html);
             });
             
             return text;
