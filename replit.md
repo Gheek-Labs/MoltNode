@@ -102,7 +102,29 @@ When community MLS is selected, the wizard prints a single command to upgrade to
 - **Password**: Set via `MDS_PASSWORD` secret, or auto-generated on startup
 - **Note**: Block port 9003 at firewall if external access not needed
 
+## Natural Language Chat Interface
+- **Port**: 5000
+- **URL**: Open the webview to access the chat UI
+
+### Features
+- Ask questions in natural language: "What's my balance?", "Show node status"
+- Automatic command execution for safe queries
+- Confirmation required for transactions (send), vault, and backup
+- Pluggable LLM providers (OpenAI, Anthropic, Ollama, custom)
+
+### Configuration
+Set LLM provider via environment variables:
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `LLM_PROVIDER` | openai, anthropic, ollama, custom | openai |
+| `LLM_MODEL` | Model name (e.g., gpt-4o-mini) | provider default |
+| `LLM_BASE_URL` | Custom API endpoint (for custom provider) | - |
+| `LLM_API_KEY` | API key for custom provider | - |
+
+Replit AI Integration is used by default (no API key needed).
+
 ## Recent Changes
+- 2026-02-04: Added natural language chat interface with pluggable LLM providers
 - 2026-02-04: Renamed MoltID to MxID everywhere (scripts and docs)
 - 2026-02-03: JAR now downloaded from GitHub on first run (removed 72MB from repo)
 - 2026-02-03: Added FEATURES.md - complete feature list documentation
