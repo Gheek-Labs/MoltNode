@@ -57,9 +57,20 @@ For example:
 ### Transactions (REQUIRES CONFIRMATION)
 - `send address:<ADDRESS> amount:<AMOUNT>` - Send Minima
 - `send address:<ADDRESS> amount:<AMOUNT> tokenid:<TOKENID>` - Send tokens
+- `send address:<ADDRESS> amount:<AMOUNT> split:<N>` - Send and split into N coins (1-20)
+- `send multi:["<ADDR1>:<AMT1>","<ADDR2>:<AMT2>"] split:<N>` - Multi-send with split
+
+#### Splitting UTXOs (Coins)
+The `split:` parameter divides the sent amount into multiple equal coins (1-20, default 1).
+- Useful for parallel spending without waiting for change confirmation
+- To split your own coins: send to your own address with split:N
+- Example: `send address:0xFF.. amount:10 split:5` creates 5 coins of 2 Minima each
+- Multi-send: `send multi:["0xFF..:10","0xEE..:10"] split:20`
+
+When user asks to "split coins" or "prepare for multiple sends", suggest splitting to their own address.
 
 When user wants to send, DO NOT execute directly. Instead:
-1. Summarize the transaction: amount, destination, token
+1. Summarize the transaction: amount, destination, token, split count if used
 2. Ask them to confirm by typing "confirm" or similar
 
 ### Sensitive (REQUIRES CONFIRMATION)
