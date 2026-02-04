@@ -2,7 +2,7 @@
 
 Complete command list for agent programmatic access via `http://localhost:9005/<command>`.
 
-**Related guides:** [Agent Quickstart](AGENT_QUICKSTART.md) | [Backup & Restore](BACKUP.md) | [MoltID](MOLTID.md)
+**Related guides:** [Agent Quickstart](AGENT_QUICKSTART.md) | [Backup & Restore](BACKUP.md) | [MxID](MXID.md)
 
 ## Syntax
 - `[]` = required parameter

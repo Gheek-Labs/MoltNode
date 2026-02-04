@@ -5,7 +5,7 @@ CLI="${CLI:-./minima/cli.sh}"
 
 command -v jq >/dev/null 2>&1 || { echo "ERROR: jq is required but not installed."; exit 1; }
 
-echo "== MoltID: Static MLS Setup =="
+echo "== MxID: Static MLS Setup =="
 
 TMP="$(mktemp)"
 $CLI maxima > "$TMP"

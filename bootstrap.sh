@@ -32,7 +32,7 @@ fi
 chmod +x "$MINIMA_DIR/start.sh"
 chmod +x "$MINIMA_DIR/cli.sh"
 chmod +x "$MINIMA_DIR/get_maxima.sh"
-chmod +x "$MINIMA_DIR/moltid_"*.sh
+chmod +x "$MINIMA_DIR/mxid_"*.sh
 chmod +x "$MINIMA_DIR/mds_"*.sh
 
 echo "Bootstrap complete!"

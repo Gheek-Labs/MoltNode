@@ -5,7 +5,7 @@ CLI="${CLI:-./minima/cli.sh}"
 
 command -v jq >/dev/null 2>&1 || { echo "ERROR: jq is required but not installed."; exit 1; }
 
-echo "== MoltID: Contact Lockdown =="
+echo "== MxID: Contact Lockdown =="
 
 RESULT="$($CLI maxextra action:allowallcontacts enable:false)"
 

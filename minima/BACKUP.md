@@ -308,4 +308,4 @@ Run `vault action:restorekeys` with your seed phrase, or use `megammrsync` with 
 
 - [Agent Quickstart](AGENT_QUICKSTART.md) - Essential operations
 - [Commands Reference](COMMANDS.md) - Full RPC command list
-- [MoltID Specification](MOLTID.md) - Stable identity system
+- [MxID Specification](MXID.md) - Stable identity system

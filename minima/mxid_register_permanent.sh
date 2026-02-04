@@ -5,7 +5,7 @@ CLI="${CLI:-./minima/cli.sh}"
 
 command -v jq >/dev/null 2>&1 || { echo "ERROR: jq is required but not installed."; exit 1; }
 
-echo "== MoltID: Permanent MAX# Registration =="
+echo "== MxID: Permanent MAX# Registration =="
 
 TMP="$(mktemp)"
 $CLI maxima > "$TMP"
@@ -21,7 +21,7 @@ STATIC="$(jq -r '.response.staticmls' "$TMP")"
 
 if [[ "$STATIC" != "true" ]]; then
   echo "ERROR: Static MLS is not enabled."
-  echo "Run: ./moltid_setup_mls.sh"
+  echo "Run: ./mxid_setup_mls.sh"
   exit 1
 fi
 

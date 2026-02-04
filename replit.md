@@ -1,14 +1,14 @@
 # Minima Node - One-Click Bootstrap
 
 ## Overview
-A one-click, agent-friendly, headless Minima blockchain node setup with stable MoltID identity system. The node runs with RPC enabled for programmatic interaction.
+A one-click, agent-friendly, headless Minima blockchain node setup with stable MxID identity system. The node runs with RPC enabled for programmatic interaction.
 
 ## Project Structure
 ```
 /
 ├── bootstrap.sh       # One-click setup script
 ├── minima/
-│   ├── minima.jar     # Minima node JAR
+│   ├── minima.jar     # Minima node JAR (downloaded on first run)
 │   ├── start.sh       # Node startup script
 │   ├── cli.sh         # Agent-friendly CLI wrapper
 │   ├── get_maxima.sh  # Get current Maxima address
@@ -17,16 +17,16 @@ A one-click, agent-friendly, headless Minima blockchain node setup with stable M
 │   ├── mds_api.sh             # Call MiniDapp API endpoints
 │   ├── mds_store.sh           # Manage MiniDapp stores
 │   ├── MINIDAPPS.md           # MiniDapp guide and store directory
-│   ├── moltid_init.sh         # Full MoltID wizard (with auto-detection)
-│   ├── moltid_setup_mls.sh    # Set Static MLS
-│   ├── moltid_register_permanent.sh  # Register Permanent MAX#
-│   ├── moltid_lockdown_contacts.sh   # Contact anti-spam
-│   ├── moltid_claim.sh        # Claim MoltID identity
-│   ├── moltid_info.sh         # Identity card JSON
-│   ├── moltid_challenge.sh    # Generate verification challenge (Minima RNG)
-│   ├── moltid_sign.sh         # Sign with Maxima key
-│   ├── moltid_verify.sh       # Verify signature
-│   ├── MOLTID.md              # MoltID specification
+│   ├── mxid_init.sh         # Full MxID wizard (with auto-detection)
+│   ├── mxid_setup_mls.sh    # Set Static MLS
+│   ├── mxid_register_permanent.sh  # Register Permanent MAX#
+│   ├── mxid_lockdown_contacts.sh   # Contact anti-spam
+│   ├── mxid_claim.sh        # Claim MxID identity
+│   ├── mxid_info.sh         # Identity card JSON
+│   ├── mxid_challenge.sh    # Generate verification challenge (Minima RNG)
+│   ├── mxid_sign.sh         # Sign with Maxima key
+│   ├── mxid_verify.sh       # Verify signature
+│   ├── MXID.md              # MxID specification
 │   ├── BACKUP.md              # Backup, restore, resync guide
 │   ├── AGENT_QUICKSTART.md    # Agent operations guide
 │   ├── COMMANDS.md            # Full RPC command reference
@@ -34,16 +34,16 @@ A one-click, agent-friendly, headless Minima blockchain node setup with stable M
 └── README.md          # Documentation
 ```
 
-## MoltID - Stable Agent Identity
-MoltID provides a reachable, stable identity that survives restarts/IP changes.
+## MxID - Stable Agent Identity
+MxID provides a reachable, stable identity that survives restarts/IP changes.
 
 **Prerequisites:** `jq` installed
 
-**Quick setup:** `./minima/moltid_init.sh`
+**Quick setup:** `./minima/mxid_init.sh`
 
-**Manual order:** moltid_setup_mls.sh → moltid_register_permanent.sh → moltid_lockdown_contacts.sh → moltid_claim.sh
+**Manual order:** mxid_setup_mls.sh → mxid_register_permanent.sh → mxid_lockdown_contacts.sh → mxid_claim.sh
 
-**Primitives:** moltid_info.sh, moltid_challenge.sh, moltid_sign.sh, moltid_verify.sh
+**Primitives:** mxid_info.sh, mxid_challenge.sh, mxid_sign.sh, mxid_verify.sh
 
 ### MLS Auto-Detection
 The wizard auto-detects if your node can be its own MLS (public IPv4 + port listening):
@@ -96,8 +96,8 @@ When community MLS is selected, the wizard prints a single command to upgrade to
 - 2026-02-03: Added FEATURES.md - complete feature list documentation
 - 2026-02-03: Added "Explore MDS" as step 4 in quickstart guides
 - 2026-02-03: Enabled MDS with high-entropy password validation and auto-generation
-- 2026-02-03: Restructured AGENT_QUICKSTART.md (backup → MoltID → operations)
-- 2026-02-02: Added MLS auto-detection to moltid_init.sh wizard
-- 2026-02-02: Added complete MoltID Phase-0 primitives (9 scripts)
+- 2026-02-03: Restructured AGENT_QUICKSTART.md (backup → MxID → operations)
+- 2026-02-02: Added MLS auto-detection to mxid_init.sh wizard
+- 2026-02-02: Added complete MxID Phase-0 primitives (9 scripts)
 - 2026-02-02: Added Moltbook verification ritual documentation
 - 2026-02-02: Initial setup - one-click headless Minima node with RPC

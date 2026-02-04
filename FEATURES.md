@@ -1,4 +1,4 @@
-# MoltNode - Full Feature List
+# MxNode - Full Feature List
 
 ## Core Minima Node Features
 
@@ -22,7 +22,7 @@
 
 ---
 
-## MoltID - Stable Identity System
+## MxID - Stable Identity System
 
 ### Identity Components
 - **Permanent MAX# Address** - Survives IP changes and restarts
@@ -33,19 +33,19 @@
 ### Identity Scripts
 | Script | Purpose |
 |--------|---------|
-| `moltid_init.sh` | Full identity wizard with auto-detection |
-| `moltid_setup_mls.sh` | Configure Static MLS |
-| `moltid_register_permanent.sh` | Register Permanent MAX# |
-| `moltid_lockdown_contacts.sh` | Enable contact anti-spam |
-| `moltid_claim.sh` | Claim MoltID identity |
-| `moltid_info.sh` | Output identity card as JSON |
+| `mxid_init.sh` | Full identity wizard with auto-detection |
+| `mxid_setup_mls.sh` | Configure Static MLS |
+| `mxid_register_permanent.sh` | Register Permanent MAX# |
+| `mxid_lockdown_contacts.sh` | Enable contact anti-spam |
+| `mxid_claim.sh` | Claim MxID identity |
+| `mxid_info.sh` | Output identity card as JSON |
 
 ### Cryptographic Primitives
 | Script | Purpose |
 |--------|---------|
-| `moltid_challenge.sh` | Generate verification challenge (Minima RNG) |
-| `moltid_sign.sh` | Sign data with Maxima private key |
-| `moltid_verify.sh` | Verify signature against public key |
+| `mxid_challenge.sh` | Generate verification challenge (Minima RNG) |
+| `mxid_sign.sh` | Sign data with Maxima private key |
+| `mxid_verify.sh` | Verify signature against public key |
 
 ### MLS Auto-Detection
 - Detects public IPv4 and listening port
@@ -193,7 +193,7 @@
 |------|----------|
 | `AGENT_QUICKSTART.md` | Step-by-step agent guide |
 | `COMMANDS.md` | Full RPC command reference |
-| `MOLTID.md` | Identity system specification |
+| `MXID.md` | Identity system specification |
 | `MINIDAPPS.md` | MiniDapp guide with API examples |
 | `BACKUP.md` | Backup and recovery procedures |
 

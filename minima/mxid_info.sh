@@ -23,7 +23,7 @@ NAME="$(jq -r '.response.name' "$TMP")"
 MAXADDR="MAX#${PUB}#${MLS}"
 
 jq -n \
-  --arg moltid "MOLTID:${PUB}" \
+  --arg mxid "MXID:${PUB}" \
   --arg maxima_pubkey "$PUB" \
   --arg maxima_name "$NAME" \
   --arg staticmls "$STATIC" \
@@ -32,7 +32,7 @@ jq -n \
   --arg contact "$CONTACT" \
   --arg p2pidentity "$P2P" \
   '{
-    moltid: $moltid,
+    mxid: $mxid,
     maxima_publickey: $maxima_pubkey,
     maxima_name: $maxima_name,
     staticmls: ($staticmls == "true"),

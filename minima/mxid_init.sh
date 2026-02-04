@@ -19,7 +19,7 @@ need_cmd() {
 }
 
 tmpjson() {
-  mktemp 2>/dev/null || mktemp -t moltid
+  mktemp 2>/dev/null || mktemp -t mxid
 }
 
 fetch_maxima() {
@@ -40,7 +40,7 @@ get_field() {
 }
 
 gen_challenge() {
-  "$SCRIPT_DIR/moltid_challenge.sh"
+  "$SCRIPT_DIR/mxid_challenge.sh"
 }
 
 run_cli() {
@@ -127,7 +127,7 @@ is_listening_on_port() {
   fi
 }
 
-banner "MoltID Init Wizard"
+banner "MxID Init Wizard"
 echo "CLI: $CLI"
 
 [[ -x "$CLI" ]] || {
@@ -159,7 +159,7 @@ banner "Step 2/7: Set Maxima Name (Nickname)"
 echo "Your current Maxima name is: $NAME"
 echo ""
 echo "NOTE: maxima_name is just a nickname - it is NOT unique and NOT verified."
-echo "      Your MoltID (Maxima public key) is your true unique identity."
+echo "      Your MxID (Maxima public key) is your true unique identity."
 echo "      The name is for human readability only."
 echo ""
 if [[ "$NAME" == "noname" || -z "$NAME" ]]; then
@@ -308,16 +308,16 @@ else
   echo "  $CLI maxextra action:allowallcontacts enable:false"
 fi
 
-banner "Step 6/7: Claim MoltID (Root Identity)"
-echo "MoltID Root:"
-echo "  MOLTID:$PUB"
+banner "Step 6/7: Claim MxID (Root Identity)"
+echo "MxID Root:"
+echo "  MXID:$PUB"
 echo ""
 echo "Permanent Reachability:"
 echo "  $MAXADDR"
 echo ""
 echo "Identity Card (JSON):"
 jq -n \
-  --arg moltid "MOLTID:${PUB}" \
+  --arg mxid "MXID:${PUB}" \
   --arg maxima_pubkey "$PUB" \
   --arg maxima_name "$NAME" \
   --arg mls "$MLS" \
@@ -326,7 +326,7 @@ jq -n \
   --arg p2pidentity "$P2P" \
   --arg staticmls "$STATIC" \
   '{
-    moltid: $moltid,
+    mxid: $mxid,
     maxima_publickey: $maxima_pubkey,
     maxima_name: $maxima_name,
     staticmls: ($staticmls == "true"),
@@ -340,8 +340,8 @@ banner "Step 7/7: Ready-to-Post Moltbook Snippet"
 echo "Copy/paste this to Moltbook:"
 cat <<EOF
 
-MoltID Verified (self-hosted)
-MoltID: MOLTID:$PUB
+MxID Verified (self-hosted)
+MxID: MXID:$PUB
 MAX#: $MAXADDR
 
 Notes:
@@ -377,5 +377,5 @@ if [[ "$DOCHAL" =~ ^[Yy]$ ]]; then
 fi
 
 banner "Done"
-echo "MoltID init complete."
+echo "MxID init complete."
 echo "Remember: Permanent MAX# requires the addpermanent step on your Static MLS node."

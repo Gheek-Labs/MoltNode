@@ -5,7 +5,7 @@ CLI="${CLI:-./minima/cli.sh}"
 
 command -v jq >/dev/null 2>&1 || { echo "ERROR: jq is required but not installed."; exit 1; }
 
-echo "== MoltID: Claim Identity =="
+echo "== MxID: Claim Identity =="
 
 TMP="$(mktemp)"
 $CLI maxima > "$TMP"
@@ -20,8 +20,8 @@ MLS="$(jq -r '.response.mls' "$TMP")"
 STATIC="$(jq -r '.response.staticmls' "$TMP")"
 
 if [[ "$STATIC" != "true" ]]; then
-  echo "MoltID incomplete: Static MLS not enabled."
-  echo "Run: ./moltid_setup_mls.sh"
+  echo "MxID incomplete: Static MLS not enabled."
+  echo "Run: ./mxid_setup_mls.sh"
   exit 1
 fi
 
@@ -33,7 +33,7 @@ VERIFY="$($CLI maxextra action:getaddress maxaddress:$MAXADDR 2>/dev/null || tru
 
 if ! echo "$VERIFY" | jq -e '.status == true' > /dev/null 2>&1; then
   echo "WARNING: Permanent MAX# could not be verified."
-  echo "Run moltid_register_permanent.sh to complete registration."
+  echo "Run mxid_register_permanent.sh to complete registration."
   echo ""
   read -r -p "Continue anyway? (y/N): " CONTINUE
   if [[ "$CONTINUE" != "y" && "$CONTINUE" != "Y" ]]; then
@@ -42,10 +42,10 @@ if ! echo "$VERIFY" | jq -e '.status == true' > /dev/null 2>&1; then
 fi
 
 echo ""
-echo "MoltID (Root):"
-echo "MOLTID:$PUB"
+echo "MxID (Root):"
+echo "MXID:$PUB"
 echo ""
 echo "Public Reachability (Permanent MAX# format):"
 echo "$MAXADDR"
 echo ""
-echo "MoltID claimed (cryptographic root + stable routing)."
+echo "MxID claimed (cryptographic root + stable routing)."

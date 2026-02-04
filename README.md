@@ -1,6 +1,6 @@
 # Minima Node - One-Click Bootstrap
 
-Agent-friendly, headless Minima blockchain node with stable MoltID identity system.
+Agent-friendly, headless Minima blockchain node with stable MxID identity system.
 
 ## Quick Start
 
@@ -18,7 +18,7 @@ On first run, the Minima JAR (~70MB) is downloaded automatically from GitHub.
 | [Full Feature List](FEATURES.md) | Complete capabilities overview |
 | [Agent Quickstart](minima/AGENT_QUICKSTART.md) | Essential operations for agents |
 | [MiniDapps Guide](minima/MINIDAPPS.md) | Serverless dapp infrastructure |
-| [MoltID Specification](minima/MOLTID.md) | Stable identity system |
+| [MxID Specification](minima/MXID.md) | Stable identity system |
 | [Backup & Restore](minima/BACKUP.md) | Backup, restore, and resync guide |
 | [Commands Reference](minima/COMMANDS.md) | Full RPC command list |
 
@@ -28,7 +28,7 @@ On first run, the Minima JAR (~70MB) is downloaded automatically from GitHub.
 
 **2. Back up immediately:** `./minima/cli.sh vault` (view seed phrase)
 
-**3. Initialize MoltID:** `./minima/moltid_init.sh` (stable identity)
+**3. Initialize MxID:** `./minima/mxid_init.sh` (stable identity)
 
 **4. Explore MDS:** `./minima/mds_list.sh --table` (view MiniDapps)
 
@@ -42,33 +42,33 @@ On first run, the Minima JAR (~70MB) is downloaded automatically from GitHub.
 
 See [AGENT_QUICKSTART.md](minima/AGENT_QUICKSTART.md) for full details.
 
-## MoltID - Stable Agent Identity
+## MxID - Stable Agent Identity
 
-MoltID is a reachable, stable identity that survives restarts, IP changes, and address rotation.
+MxID is a reachable, stable identity that survives restarts, IP changes, and address rotation.
 
 **Prerequisites:** `jq` installed
 
 ### Quick Setup (Wizard)
 ```bash
-./minima/moltid_init.sh
+./minima/mxid_init.sh
 ```
 
 The wizard auto-detects if your node can be its own MLS (public IP + port listening) and guides you through the entire setup.
 
 ### Manual Setup
 ```bash
-./minima/moltid_setup_mls.sh          # 1. Set Static MLS
-./minima/moltid_register_permanent.sh  # 2. Register Permanent MAX#
-./minima/moltid_lockdown_contacts.sh   # 3. Lock down contacts
-./minima/moltid_claim.sh               # 4. Claim MoltID
+./minima/mxid_setup_mls.sh          # 1. Set Static MLS
+./minima/mxid_register_permanent.sh  # 2. Register Permanent MAX#
+./minima/mxid_lockdown_contacts.sh   # 3. Lock down contacts
+./minima/mxid_claim.sh               # 4. Claim MxID
 ```
 
 ### Identity Primitives
 ```bash
-./minima/moltid_info.sh       # Identity card (JSON)
-./minima/moltid_challenge.sh  # Generate verification challenge
-./minima/moltid_sign.sh       # Sign data
-./minima/moltid_verify.sh     # Verify signature
+./minima/mxid_info.sh       # Identity card (JSON)
+./minima/mxid_challenge.sh  # Generate verification challenge
+./minima/mxid_sign.sh       # Sign data
+./minima/mxid_verify.sh     # Verify signature
 ```
 
 ### MLS Auto-Detection
@@ -83,8 +83,8 @@ The wizard automatically selects the best MLS strategy:
 
 Configure via environment variables:
 ```bash
-COMMUNITY_MLS_HOST="Mx...@1.2.3.4:9001" ./minima/moltid_init.sh  # Fallback MLS
-AUTO_DETECT_MLS=false ./minima/moltid_init.sh                    # Force manual
+COMMUNITY_MLS_HOST="Mx...@1.2.3.4:9001" ./minima/mxid_init.sh  # Fallback MLS
+AUTO_DETECT_MLS=false ./minima/mxid_init.sh                    # Force manual
 ```
 
 ### Graduation to Sovereignty
@@ -96,7 +96,7 @@ If you start with community MLS, the wizard prints a single command to upgrade l
 
 After switching, re-register your Permanent MAX# on the new MLS.
 
-Once claimed, publish: `"I'm MoltID verified. MAX#0x3081...#Mx...@IP:PORT"`
+Once claimed, publish: `"I'm MxID verified. MAX#0x3081...#Mx...@IP:PORT"`
 
 ## RPC Interface
 
@@ -160,16 +160,16 @@ MDS provides a web interface for MiniDapps on port 9003.
 
 See [MINIDAPPS.md](minima/MINIDAPPS.md) for detailed MiniDapp documentation and community store directory.
 
-## MoltID Scripts Reference
+## MxID Scripts Reference
 
 | Script | Purpose |
 |--------|---------|
-| `moltid_init.sh` | Full wizard with auto-detection |
-| `moltid_setup_mls.sh` | Set Static MLS host |
-| `moltid_register_permanent.sh` | Register Permanent MAX# |
-| `moltid_lockdown_contacts.sh` | Disable unsolicited contacts |
-| `moltid_claim.sh` | Claim and print MoltID |
-| `moltid_info.sh` | Output identity card (JSON) |
-| `moltid_challenge.sh` | Generate 32-byte challenge |
-| `moltid_sign.sh` | Sign data with Maxima key |
-| `moltid_verify.sh` | Verify signature |
+| `mxid_init.sh` | Full wizard with auto-detection |
+| `mxid_setup_mls.sh` | Set Static MLS host |
+| `mxid_register_permanent.sh` | Register Permanent MAX# |
+| `mxid_lockdown_contacts.sh` | Disable unsolicited contacts |
+| `mxid_claim.sh` | Claim and print MxID |
+| `mxid_info.sh` | Output identity card (JSON) |
+| `mxid_challenge.sh` | Generate 32-byte challenge |
+| `mxid_sign.sh` | Sign data with Maxima key |
+| `mxid_verify.sh` | Verify signature |
