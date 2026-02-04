@@ -54,7 +54,7 @@ def reset():
 
 @app.route("/api/command", methods=["POST"])
 def direct_command():
-    """Execute a direct Minima command (bypass LLM)."""
+    """Execute a direct Minima command (restricted to safe read-only commands)."""
     try:
         data = request.get_json()
         command = data.get("command", "").strip()
@@ -62,9 +62,15 @@ def direct_command():
         if not command:
             return jsonify({"error": "Command required"}), 400
         
-        from minima_agent import quick_command
-        result = quick_command(command)
+        from minima_agent import execute_command, is_safe_command
         
+        if not is_safe_command(command):
+            return jsonify({
+                "error": "Command not allowed via direct API. Use the chat interface for transaction commands.",
+                "status": False
+            }), 403
+        
+        result = execute_command(command)
         return jsonify(result)
     
     except Exception as e:
