@@ -229,8 +229,9 @@ class MinimaAgent:
                 # Extract key info for summary
                 res = result.get("response", result)
                 if isinstance(res, dict) and "txpowid" in res:
-                    txid = res.get("txpowid", "")[:20] + "..."
-                    response = f"Transaction sent successfully!\n\n**TX ID:** `{txid}`\n\n<details>\n<summary>View full response</summary>\n\n```json\n{json.dumps(res, indent=2)}\n```\n</details>"
+                    txid = res.get("txpowid", "")
+                    explorer_url = f"https://explorer.minima.global/transactions/{txid}"
+                    response = f"Transaction sent successfully!\n\n**TX ID:** `{txid[:20]}...`\n\n[View on Explorer]({explorer_url})\n\n<details>\n<summary>View full response</summary>\n\n```json\n{json.dumps(res, indent=2)}\n```\n</details>"
                 else:
                     response = f"Done!\n\n<details>\n<summary>View response</summary>\n\n```json\n{json.dumps(res, indent=2)}\n```\n</details>"
             else:

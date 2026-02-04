@@ -150,6 +150,15 @@ header h1 {
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+.message-content a {
+    color: #00d9ff;
+    text-decoration: none;
+}
+
+.message-content a:hover {
+    text-decoration: underline;
+}
+
 .message-content ul {
     margin-top: 0.5rem;
     padding-left: 1.25rem;
