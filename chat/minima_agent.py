@@ -226,7 +226,13 @@ class MinimaAgent:
             self.conversation_history.append({"role": "user", "content": user_message})
             
             if result.get("status"):
-                response = f"Done! Command executed successfully.\n\nResult: {json.dumps(result.get('response', result), indent=2)}"
+                # Extract key info for summary
+                res = result.get("response", result)
+                if isinstance(res, dict) and "txpowid" in res:
+                    txid = res.get("txpowid", "")[:20] + "..."
+                    response = f"Transaction sent successfully!\n\n**TX ID:** `{txid}`\n\n<details>\n<summary>View full response</summary>\n\n```json\n{json.dumps(res, indent=2)}\n```\n</details>"
+                else:
+                    response = f"Done!\n\n<details>\n<summary>View response</summary>\n\n```json\n{json.dumps(res, indent=2)}\n```\n</details>"
             else:
                 response = f"Command failed: {result.get('error', 'Unknown error')}"
             
