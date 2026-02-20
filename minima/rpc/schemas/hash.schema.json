@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "hash",
+  "description": "Hash data using Minima's internal hash function (Keccak-256).",
+  "type": "object",
+  "properties": {
+    "status": { "type": "boolean" },
+    "response": {
+      "type": "object",
+      "properties": {
+        "input": {
+          "type": "string",
+          "description": "Original input data"
+        },
+        "hash": {
+          "type": "string",
+          "description": "Keccak-256 hash result, 0x-prefixed hex string"
+        }
+      },
+      "required": ["input", "hash"]
+    }
+  },
+  "required": ["status", "response"],
+  "x-agent-warnings": [
+    "Hash output is always 0x-prefixed hex",
+    "Input can be a string or 0x-prefixed hex data"
+  ]
+}

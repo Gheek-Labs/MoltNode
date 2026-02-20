@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "send",
+  "description": "Send Minima or tokens to an address. Returns the full TxPoW on success.",
+  "type": "object",
+  "properties": {
+    "status": { "type": "boolean" },
+    "response": {
+      "type": "object",
+      "description": "Same schema as txnpost response — full TxPoW object",
+      "$ref": "txnpost.schema.json#/properties/response"
+    },
+    "error": {
+      "type": "string",
+      "description": "Error message when status is false (e.g., insufficient balance)"
+    }
+  },
+  "required": ["status"],
+  "x-agent-warnings": [
+    "On success: status=true, response contains TxPoW with txpowid",
+    "On failure: status=false, error contains message (e.g., 'Insufficient funds')",
+    "Always check status before accessing response",
+    "split: parameter (1-10) divides amount into multiple output coins",
+    "Use getaddress first to get own address for self-splits"
+  ],
+  "x-parameters": {
+    "address": "Destination address (MxG... or 0x...)",
+    "amount": "Amount to send (number or string)",
+    "tokenid": "Token ID (default 0x00 for Minima)",
+    "split": "Split into N output coins (1-10, optional)",
+    "burn": "Amount to burn as fee (optional)"
+  }
+}

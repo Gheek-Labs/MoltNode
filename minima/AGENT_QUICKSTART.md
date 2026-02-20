@@ -367,7 +367,39 @@ Username: `minima`, Password: your `MDS_PASSWORD`
 
 ---
 
-## 13. Python Agent Example
+## 13. Common Parsing Mistakes
+
+### Balance field confusion
+
+> **AGENT WARNING:** The `total` field in `balance` responses is the **token maximum supply / hardcap**, NOT your wallet balance. For Minima (tokenid `0x00`), `total` is ~1 billion.
+
+| Field | Meaning | Display as |
+|-------|---------|------------|
+| `sendable` | Available to spend | **Primary balance** |
+| `confirmed` | Full wallet (includes locked) | Full balance |
+| `unconfirmed` | Pending incoming | Pending |
+| `coins` | Number of UTXOs | Coin count |
+| `total` | Token max supply / hardcap | **NEVER as balance** |
+
+### LF-only HTTP responses
+
+Minima RPC on port 9005 returns bare JSON with LF line endings (`\n`, no `\r`). Some HTTP clients or parsers may choke if they expect `\r\n` (CRLF). If you get garbled responses:
+- Use a proper JSON parser (`json.loads()`, `jq`) — never regex-parse the output.
+- If using raw TCP/sockets instead of HTTP client, read until connection close, not until `\r\n\r\n`.
+- The `cli.sh` wrapper handles this automatically.
+
+### Status field types
+
+Some numeric fields in `status` and other responses are returned as **strings**, not numbers. Always parse explicitly:
+```python
+block_number = int(status["response"]["length"])  # string → int
+```
+
+See [RESPONSE_SCHEMAS.md](RESPONSE_SCHEMAS.md) for complete field semantics and types.
+
+---
+
+## 14. Python Agent Example
 
 ```python
 import requests

@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "status",
+  "description": "Returns general node status including chain height, version, uptime, and memory.",
+  "type": "object",
+  "properties": {
+    "status": { "type": "boolean" },
+    "response": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "string",
+          "description": "Minima version string"
+        },
+        "devices": {
+          "type": "string",
+          "description": "Number of connected devices (string, parse with int())"
+        },
+        "length": {
+          "type": "string",
+          "description": "AGENT WARNING: Chain height as STRING, not integer. Parse with int()."
+        },
+        "weight": {
+          "type": "string",
+          "description": "Chain weight (string)"
+        },
+        "minima": {
+          "type": "string",
+          "description": "Total Minima in circulation (string)"
+        },
+        "coins": {
+          "type": "string",
+          "description": "Total number of coins/UTXOs (string)"
+        },
+        "data": {
+          "type": "string",
+          "description": "Data directory path"
+        },
+        "memory": {
+          "type": "object",
+          "properties": {
+            "ram": { "type": "string", "description": "RAM usage" },
+            "disk": { "type": "string", "description": "Disk usage" },
+            "files": {
+              "type": "object",
+              "properties": {
+                "txpowdb": { "type": "string" },
+                "archivedb": { "type": "string" },
+                "cascade": { "type": "string" },
+                "chaintree": { "type": "string" },
+                "wallet": { "type": "string" },
+                "userdb": { "type": "string" },
+                "p2pdb": { "type": "string" }
+              }
+            }
+          }
+        },
+        "chain": {
+          "type": "object",
+          "properties": {
+            "block": { "type": "string", "description": "Current block number (string)" },
+            "time": { "type": "string", "description": "Block timestamp" },
+            "hash": { "type": "string", "description": "Block hash (0x-prefixed)" },
+            "speed": { "type": "string", "description": "Block speed" },
+            "difficulty": { "type": "string", "description": "Mining difficulty" },
+            "size": { "type": "string", "description": "Block size" },
+            "length": { "type": "string", "description": "Chain length (string)" },
+            "weight": { "type": "string", "description": "Chain weight" },
+            "cascade": { "type": "object" }
+          }
+        },
+        "txpow": {
+          "type": "object",
+          "properties": {
+            "mempool": { "type": "string", "description": "Mempool transaction count (string)" },
+            "ramdb": { "type": "string" },
+            "txpowdb": { "type": "string" },
+            "archivedb": { "type": "string" }
+          }
+        }
+      }
+    }
+  },
+  "required": ["status", "response"],
+  "x-agent-warnings": [
+    "Most numeric fields are STRINGS — always parse with int() or float()",
+    "length, block, coins, devices are all strings, not integers",
+    "Hex values are 0x-prefixed"
+  ]
+}

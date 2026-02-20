@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "tokens",
+  "description": "List all tokens known to the node.",
+  "type": "object",
+  "properties": {
+    "status": { "type": "boolean" },
+    "response": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "tokenid": {
+            "type": "string",
+            "description": "Token identifier. '0x00' = native Minima"
+          },
+          "token": {
+            "type": ["string", "object"],
+            "description": "Token name string, or object with name/url/description for custom tokens"
+          },
+          "total": {
+            "type": "string",
+            "description": "AGENT WARNING: Total supply of this token (STRING). For Minima this is ~1B. NOT wallet balance."
+          },
+          "decimals": {
+            "type": "string",
+            "description": "Number of decimal places (STRING, parse with int())"
+          },
+          "script": {
+            "type": "string",
+            "description": "Token script (usually 'RETURN TRUE')"
+          },
+          "coinid": {
+            "type": "string",
+            "description": "Coin ID of the token creation transaction"
+          },
+          "totalamount": {
+            "type": "string",
+            "description": "Total amount in smallest unit (STRING)"
+          },
+          "scale": {
+            "type": "string",
+            "description": "Token scale factor (STRING)"
+          }
+        },
+        "required": ["tokenid", "token", "total"]
+      }
+    }
+  },
+  "required": ["status", "response"],
+  "x-agent-warnings": [
+    "total here is token supply, consistent with balance.total — NOT wallet balance",
+    "token field can be a string OR an object (for custom tokens with metadata)",
+    "decimals and scale are STRINGS, not integers"
+  ]
+}

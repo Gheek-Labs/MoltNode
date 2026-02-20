@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "balance",
+  "description": "Returns token balances for this node's wallet.",
+  "type": "object",
+  "properties": {
+    "status": { "type": "boolean" },
+    "response": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "description": "Token display name (e.g., 'Minima' for native token)"
+          },
+          "tokenid": {
+            "type": "string",
+            "description": "Token identifier. '0x00' = native Minima"
+          },
+          "confirmed": {
+            "type": "string",
+            "description": "Full wallet balance including locked coins. Use as 'full balance'."
+          },
+          "unconfirmed": {
+            "type": "string",
+            "description": "Received but pending confirmation. Use as 'pending'."
+          },
+          "sendable": {
+            "type": "string",
+            "description": "Available to spend right now (confirmed minus locked). USE AS PRIMARY BALANCE."
+          },
+          "coins": {
+            "type": "string",
+            "description": "Number of UTXO coins held for this token."
+          },
+          "total": {
+            "type": "string",
+            "description": "AGENT WARNING: This is the TOKEN MAX SUPPLY / HARDCAP, NOT wallet balance. ~1B for Minima. NEVER display as balance."
+          }
+        },
+        "required": ["token", "tokenid", "confirmed", "unconfirmed", "sendable", "coins", "total"]
+      }
+    }
+  },
+  "required": ["status", "response"],
+  "x-agent-warnings": [
+    "total is token max supply, NOT wallet balance",
+    "Display sendable as primary balance",
+    "All numeric values are strings — parse with float() or Decimal"
+  ]
+}

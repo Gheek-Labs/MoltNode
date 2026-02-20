@@ -41,6 +41,14 @@ A one-click, agent-friendly, headless Minima blockchain node setup with stable M
 │   ├── BACKUP.md              # Backup, restore, resync guide
 │   ├── AGENT_QUICKSTART.md    # Agent operations guide
 │   ├── COMMANDS.md            # Full RPC command reference
+│   ├── RESPONSE_SCHEMAS.md    # Human/agent-readable response schemas
+│   ├── rpc/schemas/           # Machine-readable JSON schemas
+│   │   ├── balance.schema.json
+│   │   ├── status.schema.json
+│   │   ├── hash.schema.json
+│   │   ├── txnpost.schema.json
+│   │   ├── tokens.schema.json
+│   │   └── send.schema.json
 │   └── data/                  # Node data directory (gitignored)
 └── README.md          # Documentation
 ```
@@ -123,7 +131,31 @@ Set LLM provider via environment variables:
 
 Replit AI Integration is used by default (no API key needed).
 
+## RPC Quirks + Balance Semantics
+
+**Critical for any agent reading Minima RPC responses:**
+
+### Balance fields
+| Field | Meaning | Use for |
+|-------|---------|---------|
+| `sendable` | What you can spend right now | **Primary balance display** |
+| `confirmed` | Full wallet balance (includes locked) | Full balance |
+| `unconfirmed` | Pending incoming | Pending indicator |
+| `total` | Token max supply / hardcap (~1B for Minima) | **NEVER display as balance** |
+
+### Response format
+- All RPC responses are JSON: `{"status": true/false, "response": ...}`
+- Many numeric fields are **strings** (e.g., `"length": "1931455"`) — parse with `int()`/`float()`
+- HTTP responses use LF-only line endings — use a JSON parser, never regex
+- Hex values are prefixed with `0x`
+
+### Response schemas
+See `minima/RESPONSE_SCHEMAS.md` for complete field semantics, types, and agent warnings.
+Machine-readable schemas in `minima/rpc/schemas/*.schema.json`.
+
 ## Recent Changes
+- 2026-02-20: Added response schema system (RESPONSE_SCHEMAS.md + rpc/schemas/*.schema.json)
+- 2026-02-20: Phase 0 doc hotfixes: balance warnings in COMMANDS.md, AGENT_QUICKSTART.md, replit.md
 - 2026-02-04: Added natural language chat interface with pluggable LLM providers
 - 2026-02-04: Renamed MoltID to MxID everywhere (scripts and docs)
 - 2026-02-03: JAR now downloaded from GitHub on first run (removed 72MB from repo)

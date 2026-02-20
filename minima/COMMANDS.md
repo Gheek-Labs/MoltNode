@@ -22,13 +22,36 @@ Complete command list for agent programmatic access via `http://localhost:9005/<
 ## Wallet
 | Command | Description |
 |---------|-------------|
-| `balance` | Show balances |
+| `balance` | Show balances (see schema below) |
 | `coins` | List coins |
 | `keys` | List wallet keys |
 | `getaddress` | Get default address |
 | `newaddress` | Create new address |
 | `tokens` | List tokens |
 | `tokencreate` | Create a token |
+
+### `balance` response schema
+
+```json
+{ "status": true, "response": [{
+  "token": "Minima",
+  "tokenid": "0x00",
+  "confirmed": "1000",      // Full wallet balance (includes locked)
+  "unconfirmed": "0",       // Received but pending confirmations
+  "sendable": "1000",       // Available to spend (confirmed minus locked)
+  "coins": "3",             // Number of UTXO coins
+  "total": "1000000000"     // TOKEN MAX SUPPLY — NOT your balance
+}]}
+```
+
+> **AGENT WARNING — `total` is a trap:**
+> `total` is the token's maximum supply / hardcap, **NOT** "your wallet balance".
+> - Display `sendable` as the primary balance (what the user can spend).
+> - Display `confirmed` as the full wallet balance (includes locked coins).
+> - Display `unconfirmed` as pending incoming.
+> - **Never** display `total` as a balance — it is ~1 billion for Minima.
+
+See also: [RESPONSE_SCHEMAS.md](RESPONSE_SCHEMAS.md) for full field semantics.
 
 ## Transactions
 | Command | Description |

@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "txnpost / send",
+  "description": "Response from posting a transaction (send or txnpost). Contains the full TxPoW object.",
+  "type": "object",
+  "properties": {
+    "status": { "type": "boolean" },
+    "response": {
+      "type": "object",
+      "properties": {
+        "txpowid": {
+          "type": "string",
+          "description": "Transaction ID (0x-prefixed). Use for explorer link: https://explorer.minima.global/transactions/<txpowid>"
+        },
+        "isblock": {
+          "type": "boolean",
+          "description": "Whether this TxPoW is a block"
+        },
+        "istransaction": {
+          "type": "boolean",
+          "description": "Whether this TxPoW contains a transaction"
+        },
+        "size": {
+          "type": "integer",
+          "description": "Size of TxPoW in bytes"
+        },
+        "burn": {
+          "type": "number",
+          "description": "Burn amount (usually 0)"
+        },
+        "header": {
+          "type": "object",
+          "properties": {
+            "block": {
+              "type": "string",
+              "description": "Block number at time of transaction (STRING)"
+            },
+            "timemilli": {
+              "type": "string",
+              "description": "Unix timestamp in milliseconds (STRING)"
+            },
+            "date": {
+              "type": "string",
+              "description": "Human-readable date"
+            }
+          }
+        },
+        "body": {
+          "type": "object",
+          "properties": {
+            "txn": {
+              "type": "object",
+              "properties": {
+                "inputs": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "coinid": { "type": "string" },
+                      "amount": { "type": "string", "description": "Amount (STRING)" },
+                      "address": { "type": "string", "description": "0x-prefixed hex address" },
+                      "miniaddress": { "type": "string", "description": "MxG-prefixed human address" },
+                      "tokenid": { "type": "string" }
+                    }
+                  }
+                },
+                "outputs": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "coinid": { "type": "string" },
+                      "amount": { "type": "string", "description": "Amount (STRING)" },
+                      "address": { "type": "string" },
+                      "miniaddress": { "type": "string" },
+                      "tokenid": { "type": "string" }
+                    }
+                  }
+                },
+                "transactionid": {
+                  "type": "string",
+                  "description": "Internal transaction hash (different from txpowid)"
+                }
+              }
+            }
+          }
+        }
+      },
+      "required": ["txpowid"]
+    }
+  },
+  "required": ["status", "response"],
+  "x-agent-warnings": [
+    "txpowid is the primary transaction identifier for explorer links",
+    "amount fields in inputs/outputs are STRINGS, not numbers",
+    "header.block and header.timemilli are STRINGS",
+    "transactionid != txpowid — use txpowid for external references"
+  ]
+}
