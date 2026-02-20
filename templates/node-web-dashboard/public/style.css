@@ -1,0 +1,283 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: #0f0f1a;
+  color: #e0e0e0;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+header h1 {
+  color: #00d9ff;
+  font-size: 2rem;
+  margin-bottom: 0.25rem;
+}
+
+.subtitle {
+  color: #888;
+  font-size: 0.95rem;
+}
+
+h2 {
+  color: #ccc;
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #222;
+}
+
+.status-bar {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.status-item {
+  flex: 1;
+  min-width: 120px;
+  background: #1a1a2e;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  text-align: center;
+}
+
+.status-item .label {
+  display: block;
+  font-size: 0.75rem;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.25rem;
+}
+
+.status-item .value {
+  display: block;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.balance-section {
+  margin-bottom: 2rem;
+}
+
+.balance-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+@media (max-width: 600px) {
+  .balance-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.balance-card {
+  background: #1a1a2e;
+  padding: 1.25rem;
+  border-radius: 0.75rem;
+  border: 1px solid #222;
+}
+
+.balance-card.primary {
+  border-color: #00d9ff;
+  background: linear-gradient(135deg, #1a1a2e 0%, #0d2a3a 100%);
+}
+
+.balance-card.secondary {
+  border-color: #333;
+}
+
+.balance-card.tertiary {
+  border-color: #333;
+}
+
+.balance-label {
+  font-size: 0.8rem;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.balance-value {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 0.25rem;
+  word-break: break-all;
+}
+
+.balance-card.primary .balance-value {
+  color: #00d9ff;
+  font-size: 2.2rem;
+}
+
+.balance-card.secondary .balance-value,
+.balance-card.tertiary .balance-value {
+  font-size: 1.3rem;
+  color: #bbb;
+}
+
+.balance-tag {
+  font-size: 0.75rem;
+  color: #666;
+}
+
+.balance-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.info-note {
+  font-style: italic;
+}
+
+.tooltip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #333;
+  color: #999;
+  font-size: 0.65rem;
+  cursor: help;
+  position: relative;
+}
+
+.tooltip:hover::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #2a2a4e;
+  color: #ddd;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.4rem;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  width: 240px;
+  text-transform: none;
+  letter-spacing: normal;
+  font-weight: normal;
+  z-index: 10;
+  border: 1px solid #444;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+}
+
+.tokens-section {
+  margin-bottom: 2rem;
+}
+
+.tokens-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.token-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #1a1a2e;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+}
+
+.token-name {
+  font-weight: 600;
+  color: #ddd;
+}
+
+.token-balances {
+  text-align: right;
+}
+
+.token-sendable {
+  font-weight: 600;
+  color: #00d9ff;
+  margin-right: 0.5rem;
+}
+
+.token-confirmed {
+  font-size: 0.8rem;
+  color: #888;
+}
+
+.no-tokens {
+  color: #666;
+  font-style: italic;
+  padding: 0.5rem 0;
+}
+
+.address-section {
+  margin-bottom: 2rem;
+}
+
+.address-box {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: #1a1a2e;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid #222;
+}
+
+.address-box code {
+  flex: 1;
+  font-family: 'Monaco', 'Consolas', monospace;
+  font-size: 0.85rem;
+  color: #00d9ff;
+  word-break: break-all;
+}
+
+.copy-btn {
+  padding: 0.4rem 0.8rem;
+  background: #333;
+  color: #ddd;
+  border: none;
+  border-radius: 0.3rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.copy-btn:hover {
+  background: #444;
+}
+
+footer {
+  text-align: center;
+  padding-top: 1rem;
+  font-size: 0.75rem;
+  color: #555;
+}

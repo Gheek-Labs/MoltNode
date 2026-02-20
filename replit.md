@@ -55,6 +55,10 @@ A one-click, agent-friendly, headless Minima blockchain node setup with stable M
 │   │   ├── tokens.schema.json
 │   │   └── send.schema.json
 │   └── data/                  # Node data directory (gitignored)
+├── templates/             # Reference implementations
+│   ├── node-web-dashboard/    # Express dashboard (3-balance display)
+│   ├── python-bot/            # CLI balance/status monitor
+│   └── ros2-bridge/           # ROS2 topic bridge skeleton
 └── README.md          # Documentation
 ```
 
@@ -159,6 +163,7 @@ See `minima/RESPONSE_SCHEMAS.md` for complete field semantics, types, and agent 
 Machine-readable schemas in `minima/rpc/schemas/*.schema.json`.
 
 ## Recent Changes
+- 2026-02-20: Added templates: node-web-dashboard, python-bot, ros2-bridge
 - 2026-02-20: Added language integration kits (integration/python + integration/node)
 - 2026-02-20: Added response schema system (RESPONSE_SCHEMAS.md + rpc/schemas/*.schema.json)
 - 2026-02-20: Phase 0 doc hotfixes: balance warnings in COMMANDS.md, AGENT_QUICKSTART.md, replit.md

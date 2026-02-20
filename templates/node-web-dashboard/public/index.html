@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minima Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Minima Dashboard</h1>
+      <p class="subtitle">Node Status & Wallet Overview</p>
+    </header>
+
+    <section class="status-bar" id="status-bar">
+      <div class="status-item">
+        <span class="label">Version</span>
+        <span class="value" id="version">—</span>
+      </div>
+      <div class="status-item">
+        <span class="label">Block</span>
+        <span class="value" id="block">—</span>
+      </div>
+      <div class="status-item">
+        <span class="label">Devices</span>
+        <span class="value" id="devices">—</span>
+      </div>
+      <div class="status-item">
+        <span class="label">Mempool</span>
+        <span class="value" id="mempool">—</span>
+      </div>
+    </section>
+
+    <section class="balance-section">
+      <h2>Wallet Balance</h2>
+      <div class="balance-grid" id="balance-grid">
+        <div class="balance-card primary">
+          <div class="balance-label">
+            Sendable
+            <span class="tooltip" data-tip="What you can spend right now. This is your confirmed balance minus any locked coins.">?</span>
+          </div>
+          <div class="balance-value" id="sendable">—</div>
+          <div class="balance-tag">Available to spend</div>
+        </div>
+        <div class="balance-card secondary">
+          <div class="balance-label">
+            Confirmed
+            <span class="tooltip" data-tip="Your full wallet balance including locked funds. Confirmed includes coins that may be time-locked or script-locked.">?</span>
+          </div>
+          <div class="balance-value" id="confirmed">—</div>
+          <div class="balance-tag">Full balance (includes locked)</div>
+        </div>
+        <div class="balance-card tertiary">
+          <div class="balance-label">
+            Unconfirmed
+            <span class="tooltip" data-tip="Coins you've received but haven't been confirmed by the network yet. These will move to confirmed once included in a block.">?</span>
+          </div>
+          <div class="balance-value" id="unconfirmed">—</div>
+          <div class="balance-tag">Pending incoming</div>
+        </div>
+      </div>
+      <div class="balance-meta">
+        <span id="coins-count">— coins</span>
+        <span class="info-note">Confirmed includes locked funds. Sendable is spendable now.</span>
+      </div>
+    </section>
+
+    <section class="tokens-section" id="tokens-section">
+      <h2>Token Balances</h2>
+      <div id="tokens-list" class="tokens-list"></div>
+    </section>
+
+    <section class="address-section">
+      <h2>Receiving Address</h2>
+      <div class="address-box">
+        <code id="miniaddress">—</code>
+        <button onclick="copyAddress()" class="copy-btn">Copy</button>
+      </div>
+    </section>
+
+    <footer>
+      <p>Auto-refreshes every 15 seconds</p>
+    </footer>
+  </div>
+
+  <script>
+    async function fetchJSON(url) {
+      const resp = await fetch(url);
+      return resp.json();
+    }
+
+    function formatBalance(val) {
+      const num = parseFloat(val || '0');
+      if (num === 0) return '0';
+      if (num >= 1) return num.toLocaleString(undefined, { maximumFractionDigits: 8 });
+      return num.toFixed(8);
+    }
+
+    async function refreshStatus() {
+      try {
+        const data = await fetchJSON('/api/status');
+        if (!data.ok) return;
+        const s = data.status;
+        document.getElementById('version').textContent = s.version;
+        document.getElementById('block').textContent = s.block.toLocaleString();
+        document.getElementById('devices').textContent = s.devices;
+        document.getElementById('mempool').textContent = s.mempool;
+      } catch (e) {
+        console.error('Status fetch failed:', e);
+      }
+    }
+
+    async function refreshBalance() {
+      try {
+        const data = await fetchJSON('/api/balance');
+        if (!data.ok) return;
+
+        const minima = data.balances.find(b => b.tokenid === '0x00');
+        if (minima) {
+          document.getElementById('sendable').textContent = formatBalance(minima.sendable);
+          document.getElementById('confirmed').textContent = formatBalance(minima.confirmed);
+          document.getElementById('unconfirmed').textContent = formatBalance(minima.unconfirmed);
+          document.getElementById('coins-count').textContent = `${minima.coins} coin${minima.coins !== '1' ? 's' : ''}`;
+        }
+
+        const tokens = data.balances.filter(b => b.tokenid !== '0x00');
+        const tokensList = document.getElementById('tokens-list');
+        if (tokens.length === 0) {
+          tokensList.innerHTML = '<p class="no-tokens">No custom tokens</p>';
+        } else {
+          tokensList.innerHTML = tokens.map(t => `
+            <div class="token-row">
+              <span class="token-name">${t.token || t.tokenid.slice(0, 12) + '...'}</span>
+              <div class="token-balances">
+                <span class="token-sendable">${formatBalance(t.sendable)}</span>
+                <span class="token-confirmed">of ${formatBalance(t.confirmed)} confirmed</span>
+              </div>
+            </div>
+          `).join('');
+        }
+      } catch (e) {
+        console.error('Balance fetch failed:', e);
+      }
+    }
+
+    async function refreshAddress() {
+      try {
+        const data = await fetchJSON('/api/address');
+        if (!data.ok) return;
+        document.getElementById('miniaddress').textContent = data.address.miniaddress;
+      } catch (e) {
+        console.error('Address fetch failed:', e);
+      }
+    }
+
+    function copyAddress() {
+      const addr = document.getElementById('miniaddress').textContent;
+      navigator.clipboard.writeText(addr).catch(() => {});
+    }
+
+    async function refreshAll() {
+      await Promise.all([refreshStatus(), refreshBalance(), refreshAddress()]);
+    }
+
+    refreshAll();
+    setInterval(refreshAll, 15000);
+  </script>
+</body>
+</html>
