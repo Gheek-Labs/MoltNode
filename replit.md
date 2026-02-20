@@ -18,6 +18,11 @@ A one-click, agent-friendly, headless Minima blockchain node setup with stable M
 │   │   └── custom_provider.py    # OpenAI-compatible
 │   ├── templates/     # HTML templates
 │   └── static/        # CSS styles
+├── integration/           # Language integration kits
+│   ├── python/
+│   │   └── minima_client.py   # Python RPC client (normalized responses)
+│   └── node/
+│       └── minima-client.js   # Node.js RPC client (ESM, JSDoc typed)
 ├── minima/
 │   ├── minima.jar     # Minima node JAR (downloaded on first run)
 │   ├── start.sh       # Node startup script
@@ -154,6 +159,7 @@ See `minima/RESPONSE_SCHEMAS.md` for complete field semantics, types, and agent 
 Machine-readable schemas in `minima/rpc/schemas/*.schema.json`.
 
 ## Recent Changes
+- 2026-02-20: Added language integration kits (integration/python + integration/node)
 - 2026-02-20: Added response schema system (RESPONSE_SCHEMAS.md + rpc/schemas/*.schema.json)
 - 2026-02-20: Phase 0 doc hotfixes: balance warnings in COMMANDS.md, AGENT_QUICKSTART.md, replit.md
 - 2026-02-04: Added natural language chat interface with pluggable LLM providers

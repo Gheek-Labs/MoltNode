@@ -4,6 +4,8 @@ Human/agent-readable guide to Minima RPC response formats with semantic annotati
 
 **Machine-readable schemas:** `minima/rpc/schemas/*.schema.json`
 
+**Language integration kits:** `integration/python/minima_client.py` | `integration/node/minima-client.js`
+
 **Full command reference:** [COMMANDS.md](COMMANDS.md)
 
 ---
