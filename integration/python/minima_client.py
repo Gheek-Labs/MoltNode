@@ -255,7 +255,7 @@ class MinimaClient:
             "hash": resp.get("hash", ""),
         }
 
-    def record_onchain(self, data, label="", extra_state=None):
+    def record_onchain(self, data, label="", port=0, burn=None, extra_state=None):
         """
         Post data to the blockchain permanently via a self-send transaction.
 
@@ -263,18 +263,20 @@ class MinimaClient:
         which is the on-chain proof, searchable on the explorer.
 
         State layout:
-            0 = data (your payload — string or hash)
-            1 = label (optional description)
-            2 = timestamp (ISO 8601 UTC, auto-generated)
-            3+ = extra_state entries (if provided)
+            <port> = data (your payload — string or hash)
+            <port+1> = label (optional description, only if port < 255)
+            255 = timestamp (ISO 8601 UTC, auto-generated)
+            extra_state entries override any of the above
 
         Args:
             data: String or 0x-prefixed hash to record on-chain
             label: Optional label/description
-            extra_state: Optional dict of {state_key: value} for keys 3+
+            port: State variable port for the data (default: 0)
+            burn: Optional burn amount for priority fee
+            extra_state: Optional dict of {state_key: value} for additional state
 
         Returns:
-            dict: {txpowid, explorer_url, data, label, timestamp, block, date, raw}
+            dict: {txpowid, explorer_url, data, label, port, timestamp, block, date, raw}
 
         Raises:
             MinimaError: If transaction fails
@@ -285,15 +287,17 @@ class MinimaClient:
         address = addr["miniaddress"]
         timestamp = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
 
-        state = {"0": str(data), "2": timestamp}
-        if label:
-            state["1"] = str(label)
+        state = {str(port): str(data), "255": timestamp}
+        if label and port < 255:
+            state[str(port + 1)] = str(label)
         if extra_state:
             for k, v in extra_state.items():
                 state[str(k)] = str(v)
 
         state_json = json.dumps(state)
         cmd = f"send address:{address} amount:0.000000001 state:{state_json}"
+        if burn:
+            cmd += f" burn:{burn}"
 
         result = self.command(cmd)
         resp = result.get("response", {})
@@ -304,6 +308,7 @@ class MinimaClient:
             "explorer_url": f"https://explorer.minima.global/transactions/{txpowid}",
             "data": data,
             "label": label,
+            "port": port,
             "timestamp": timestamp,
             "block": resp.get("header", {}).get("block", ""),
             "date": resp.get("header", {}).get("date", ""),

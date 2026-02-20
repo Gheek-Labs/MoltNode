@@ -43,8 +43,10 @@ A one-click, agent-friendly, headless Minima blockchain node setup with stable M
 │   ├── mxid_sign.sh         # Sign with Maxima key
 │   ├── mxid_verify.sh       # Verify signature
 │   ├── MXID.md              # MxID specification
-│   ├── ONCHAIN_RECORDS.md      # On-chain data record guide (hash vs txpowid)
-│   ├── record_data.sh         # Post data on-chain (returns txpowid)
+│   ├── KISSVM.md                # KISSVM scripting language glossary
+│   ├── ONCHAIN_RECORDS.md      # On-chain data record guide (txn builder recipe)
+│   ├── record_data.sh         # Post data on-chain (--data/--port/--burn/--mine)
+│   ├── WEBHOOKS.md              # Webhook event catalog + payloads
 │   ├── BACKUP.md              # Backup, restore, resync guide
 │   ├── AGENT_QUICKSTART.md    # Agent operations guide
 │   ├── COMMANDS.md            # Full RPC command reference
@@ -59,6 +61,7 @@ A one-click, agent-friendly, headless Minima blockchain node setup with stable M
 │   └── data/                  # Node data directory (gitignored)
 ├── templates/             # Reference implementations
 │   ├── node-web-dashboard/    # Express dashboard (3-balance display)
+│   ├── node-webhook-listener/ # Webhook event listener (zero-dep Node.js)
 │   ├── python-bot/            # CLI balance/status monitor
 │   └── ros2-bridge/           # ROS2 topic bridge skeleton
 └── README.md          # Documentation
@@ -169,6 +172,7 @@ See `minima/RESPONSE_SCHEMAS.md` for complete field semantics, types, and agent 
 Machine-readable schemas in `minima/rpc/schemas/*.schema.json`.
 
 ## Recent Changes
+- 2026-02-20: Phase 3+4: KISSVM glossary (KISSVM.md), transaction builder recipe in ONCHAIN_RECORDS.md, rewritten record_data.sh with --data/--port/--burn/--mine flags, SDK port/burn support. Webhooks: live-captured 4 event types (NEWBLOCK, MINING, MDS_TIMER_10S/60S), created WEBHOOKS.md with full payload docs, node-webhook-listener template.
 - 2026-02-20: Phase 6: Full schema coverage — 25 RPC command schemas. Updated send schema with live transaction response (superblock/cascadelevels int, nonce/magic strings, witness/burntxn/txnlist structure). Added schemas: keys, newaddress, scripts, history, mds, burn, tokencreate, consolidate, maxsign, maxverify. Updated RESPONSE_SCHEMAS.md with all 25 command sections. Updated maxcontacts to show allowallcontacts wrapper.
 - 2026-02-20: Phase 5: Live-validated schemas, SDKs, and templates against running node. Fixed: status (removed devices, corrected int/float types), hash (added data/type fields), random (added size/hashed/type/keycode), tokens (decimals/scale are int, name vs token field), maxima (added icon/mxpublickey/staticmls/poll). Added balance tokendetails:true + NFT detection (decimals:0). Added nfts() to both SDKs.
 - 2026-02-20: Phase 4: On-chain record recipe (ONCHAIN_RECORDS.md, record_data.sh, SDK recordOnChain helpers, hash schema warnings)

@@ -6,12 +6,13 @@
 # Returns the txpowid (on-chain proof) and explorer link.
 #
 # Usage:
-#   ./record_data.sh <data> [label]
+#   ./record_data.sh --data <data> [--port <n>] [--burn <amount>] [--mine]
 #
 # Examples:
-#   ./record_data.sh "hello world"
-#   ./record_data.sh "hello world" "my-label"
-#   ./record_data.sh "0x3a7b2c..." "document-hash"
+#   ./record_data.sh --data "hello world"
+#   ./record_data.sh --data "0x3a7b2c..." --port 1
+#   ./record_data.sh --data "0xABCD" --burn 0.001
+#   ./record_data.sh --data "0xABCD" --mine
 #
 # WARNING: hash != on-chain record
 #   The 'hash' command is purely local (no txpowid, not on-chain).
@@ -24,22 +25,65 @@ RPC_PORT="${RPC_PORT:-9005}"
 RPC_URL="http://localhost:${RPC_PORT}"
 RECORD_AMOUNT="0.000000001"
 
-if [ -z "${1:-}" ]; then
-    echo "Usage: $0 <data> [label]"
+DATA=""
+PORT=0
+BURN=""
+MINE=false
+
+show_help() {
+    echo "Usage: $0 --data <data> [--port <n>] [--burn <amount>] [--mine]"
     echo ""
     echo "Records data on the Minima blockchain via a self-send transaction."
     echo "Returns txpowid (on-chain proof) and explorer link."
     echo ""
-    echo "  data   - String or 0x-prefixed hash to record"
-    echo "  label  - Optional label/description"
+    echo "Options:"
+    echo "  --data <data>    String or 0x-prefixed hex to record (REQUIRED)"
+    echo "  --port <n>       State variable port number (default: 0)"
+    echo "  --burn <amount>  Burn amount for priority fee (optional)"
+    echo "  --mine           Mine the transaction immediately (optional)"
     echo ""
     echo "WARNING: 'hash data:...' is a LOCAL operation (not on-chain)."
     echo "         This script creates an actual on-chain record."
     exit 1
+}
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --data)
+            DATA="$2"
+            shift 2
+            ;;
+        --port)
+            PORT="$2"
+            shift 2
+            ;;
+        --burn)
+            BURN="$2"
+            shift 2
+            ;;
+        --mine)
+            MINE=true
+            shift
+            ;;
+        --help|-h)
+            show_help
+            ;;
+        *)
+            if [ -z "$DATA" ]; then
+                DATA="$1"
+                shift
+            else
+                echo "Unknown option: $1" >&2
+                show_help
+            fi
+            ;;
+    esac
+done
+
+if [ -z "$DATA" ]; then
+    show_help
 fi
 
-DATA="$1"
-LABEL="${2:-}"
 TIMESTAMP="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
 rpc() {
@@ -72,12 +116,19 @@ if [ -z "$ADDRESS" ]; then
     exit 1
 fi
 
-STATE_JSON="{\"0\":\"${DATA}\",\"2\":\"${TIMESTAMP}\"}"
-if [ -n "$LABEL" ]; then
-    STATE_JSON="{\"0\":\"${DATA}\",\"1\":\"${LABEL}\",\"2\":\"${TIMESTAMP}\"}"
+STATE_JSON="{\"${PORT}\":\"${DATA}\",\"255\":\"${TIMESTAMP}\"}"
+
+CMD="send address:${ADDRESS} amount:${RECORD_AMOUNT} state:${STATE_JSON}"
+
+if [ -n "$BURN" ]; then
+    CMD="${CMD} burn:${BURN}"
 fi
 
-RESULT=$(rpc "send address:${ADDRESS} amount:${RECORD_AMOUNT} state:${STATE_JSON}")
+if [ "$MINE" = true ]; then
+    CMD="${CMD} mine:true"
+fi
+
+RESULT=$(rpc "$CMD")
 
 STATUS=$(echo "$RESULT" | jq -r '.status // false')
 if [ "$STATUS" != "true" ]; then
@@ -99,6 +150,6 @@ jq -n \
     --arg txpowid "$TXPOWID" \
     --arg explorer "$EXPLORER_URL" \
     --arg data "$DATA" \
-    --arg label "$LABEL" \
+    --argjson port "$PORT" \
     --arg timestamp "$TIMESTAMP" \
-    '{txpowid: $txpowid, explorer: $explorer, data: $data, label: $label, timestamp: $timestamp}'
+    '{txpowid: $txpowid, explorer: $explorer, data: $data, port: $port, timestamp: $timestamp}'

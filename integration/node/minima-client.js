@@ -254,30 +254,33 @@ class MinimaClient {
    * which is the on-chain proof, searchable on the explorer.
    *
    * State layout:
-   *   0 = data (your payload — string or hash)
-   *   1 = label (optional description)
-   *   2 = timestamp (ISO 8601 UTC, auto-generated)
-   *   3+ = extraState entries (if provided)
+   *   <port> = data (your payload — string or hash)
+   *   <port+1> = label (optional description, only if port < 255)
+   *   255 = timestamp (ISO 8601 UTC, auto-generated)
+   *   extraState entries override any of the above
    *
    * @param {string} data - String or 0x-prefixed hash to record on-chain
    * @param {Object} [options]
    * @param {string} [options.label] - Optional label/description
-   * @param {Object} [options.extraState] - Additional state entries {key: value} for keys 3+
-   * @returns {Promise<{ txpowid: string, explorerUrl: string, data: string, label: string, timestamp: string, block: string, date: string, raw: Object }>}
+   * @param {number} [options.port=0] - State variable port for the data
+   * @param {string|number} [options.burn] - Optional burn amount for priority fee
+   * @param {Object} [options.extraState] - Additional state entries {key: value}
+   * @returns {Promise<{ txpowid: string, explorerUrl: string, data: string, label: string, port: number, timestamp: string, block: string, date: string, raw: Object }>}
    */
-  async recordOnChain(data, { label = '', extraState = {} } = {}) {
+  async recordOnChain(data, { label = '', port = 0, burn, extraState = {} } = {}) {
     const addr = await this.getaddress();
     const address = addr.miniaddress;
     const timestamp = new Date().toISOString().replace(/\.\d{3}Z$/, 'Z');
 
-    const state = { '0': String(data), '2': timestamp };
-    if (label) state['1'] = String(label);
+    const state = { [String(port)]: String(data), '255': timestamp };
+    if (label && port < 255) state[String(port + 1)] = String(label);
     for (const [k, v] of Object.entries(extraState)) {
       state[String(k)] = String(v);
     }
 
     const stateJson = JSON.stringify(state);
-    const cmd = `send address:${address} amount:0.000000001 state:${stateJson}`;
+    let cmd = `send address:${address} amount:0.000000001 state:${stateJson}`;
+    if (burn) cmd += ` burn:${burn}`;
 
     const result = await this.command(cmd);
     const resp = result.response || {};
@@ -288,6 +291,7 @@ class MinimaClient {
       explorerUrl: `https://explorer.minima.global/transactions/${txpowid}`,
       data,
       label,
+      port,
       timestamp,
       block: resp.header?.block || '',
       date: resp.header?.date || '',
