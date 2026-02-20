@@ -3,6 +3,15 @@
 ## Overview
 A one-click, agent-friendly, headless Minima blockchain node setup with stable MxID identity system and natural language chat interface. The node runs with RPC enabled for programmatic interaction.
 
+## Agent Integration Guide
+
+> **Full integration skill:** `.agents/skills/minima-integration/SKILL.md` — load this for code examples, error cases, and payload docs.
+
+- **Ports:** RPC on `localhost:9005` (local only), P2P on `9001` (open), MDS on `9003` (SSL + password)
+- **Use the SDKs:** `integration/node/minima-client.js` or `integration/python/minima_client.py` — never raw `http.get()` (LF-only response issue)
+- **On-chain records:** Use `./minima/record_data.sh --data "..."` — handles hex encoding, txn builder, and returns txpowid
+- **Balance trap:** The `total` field is token max supply (~1B), NOT wallet balance. Always use `sendable` for display.
+
 ## Project Structure
 ```
 /
