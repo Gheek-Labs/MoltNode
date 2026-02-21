@@ -50,6 +50,7 @@
             <div class="controls">
                 <button type="button" id="reset-btn" class="secondary">New Chat</button>
                 <form method="POST" action="/logout" style="display:inline">
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
                     <button type="submit" class="secondary" style="background:#e74c3c;border-color:#e74c3c;">Logout</button>
                 </form>
             </div>
@@ -106,6 +107,11 @@
             
             text = text.replace(/<details>([\s\S]*?)<\/details>/g, (_, inner) => {
                 inner = inner.replace(/<script[\s\S]*?<\/script>/gi, '');
+                inner = inner.replace(/<style[\s\S]*?<\/style>/gi, '');
+                inner = inner.replace(/<iframe[\s\S]*?>/gi, '');
+                inner = inner.replace(/<object[\s\S]*?>/gi, '');
+                inner = inner.replace(/<embed[\s\S]*?>/gi, '');
+                inner = inner.replace(/<form[\s\S]*?>/gi, '');
                 inner = inner.replace(/on\w+\s*=/gi, 'data-blocked=');
                 inner = inner.replace(/```(\w+)?\n?([\s\S]*?)```/g, (_, lang, code) => 
                     `<pre><code>${esc(code)}</code></pre>`
@@ -119,7 +125,7 @@
             
             text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, label, url) => {
                 const cleanUrl = url.trim();
-                if (/^javascript:/i.test(cleanUrl) || /^data:/i.test(cleanUrl) || /^vbscript:/i.test(cleanUrl)) {
+                if (!/^https?:\/\//i.test(cleanUrl)) {
                     return esc(label);
                 }
                 return ph(`<a href="${esc(cleanUrl)}" target="_blank" rel="noopener noreferrer">${esc(label)}</a>`);
@@ -127,7 +133,7 @@
             
             text = esc(text);
             
-            text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
+            text = text.replace(/`([^`]+)`/g, (_, code) => `<code>${code}</code>`);
             text = text.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
 
             const lines = text.split('\n');

@@ -1,7 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
-CLI="${CLI:-./minima/cli.sh}"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+CLI="$SCRIPT_DIR/cli.sh"
 AUTO_LOCKDOWN="${AUTO_LOCKDOWN:-true}"
 
 P2P_PORT="${P2P_PORT:-9001}"

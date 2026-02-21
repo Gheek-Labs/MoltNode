@@ -14,6 +14,7 @@ FLASK_DEBUG = os.environ.get("FLASK_DEBUG", "false").lower() in ("true", "1", "y
 MAX_MESSAGE_LENGTH = 2000
 RATE_LIMIT_REQUESTS = 20
 RATE_LIMIT_WINDOW = 60
+RATE_LIMIT_MAX_IPS = 10000
 
 if not ENABLE_CHAT:
     print("")
@@ -66,6 +67,7 @@ def _get_session_secret():
 app.secret_key = _get_session_secret()
 app.config["SESSION_COOKIE_HTTPONLY"] = True
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+app.config["SESSION_COOKIE_SECURE"] = CHAT_BIND == "0.0.0.0"
 
 _rate_limits = defaultdict(list)
 
@@ -80,12 +82,23 @@ def _get_client_ip():
         return forwarded.split(",")[0].strip()
     return request.remote_addr or "unknown"
 
+def _prune_rate_limit_store(store, window):
+    if len(store) > RATE_LIMIT_MAX_IPS:
+        now = time.time()
+        cutoff = now - window
+        expired = [ip for ip, times in store.items() if not times or times[-1] < cutoff]
+        for ip in expired:
+            del store[ip]
+        if len(store) > RATE_LIMIT_MAX_IPS:
+            store.clear()
+
 def _check_rate_limit(client_ip, bucket=None, max_requests=None, window=None):
     store = bucket if bucket is not None else _rate_limits
     limit = max_requests or RATE_LIMIT_REQUESTS
     win = window or RATE_LIMIT_WINDOW
     now = time.time()
     window_start = now - win
+    _prune_rate_limit_store(store, win)
     store[client_ip] = [t for t in store[client_ip] if t > window_start]
     if len(store[client_ip]) >= limit:
         return False
@@ -93,6 +106,29 @@ def _check_rate_limit(client_ip, bucket=None, max_requests=None, window=None):
     return True
 
 _session_token = secrets.token_hex(32)
+
+def _generate_csrf_token():
+    if "_csrf_token" not in session:
+        session["_csrf_token"] = secrets.token_hex(32)
+    return session["_csrf_token"]
+
+def _validate_csrf_token():
+    token = request.form.get("_csrf_token", "")
+    expected = session.get("_csrf_token", "")
+    if not expected or not hmac.compare_digest(token.encode(), expected.encode()):
+        return False
+    return True
+
+app.jinja_env.globals["csrf_token"] = _generate_csrf_token
+
+import logging
+logger = logging.getLogger(__name__)
+
+def _safe_error(e):
+    logger.exception("Internal error")
+    if FLASK_DEBUG:
+        return str(e)
+    return "An internal error occurred. Please try again."
 
 def require_auth(f):
     @functools.wraps(f)
@@ -136,6 +172,9 @@ def get_agent():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
+        if not _validate_csrf_token():
+            return render_template("login.html", error="Invalid request. Please try again."), 403
+
         client_ip = _get_client_ip()
         if not _check_rate_limit(client_ip, bucket=_login_rate_limits,
                                   max_requests=LOGIN_RATE_LIMIT_REQUESTS,
@@ -144,13 +183,17 @@ def login():
 
         password = request.form.get("password", "")
         if hmac.compare_digest(password.encode("utf-8"), CHAT_PASSWORD.encode("utf-8")):
+            session.clear()
             session["authenticated"] = _session_token
+            session["_csrf_token"] = secrets.token_hex(32)
             return redirect(url_for("index"))
         return render_template("login.html", error="Incorrect password"), 401
     return render_template("login.html", error=None)
 
 @app.route("/logout", methods=["POST"])
 def logout():
+    if not _validate_csrf_token():
+        return redirect(url_for("login"))
     session.clear()
     return redirect(url_for("login"))
 
@@ -185,7 +228,7 @@ def chat():
         })
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": _safe_error(e)}), 500
 
 @app.route("/api/reset", methods=["POST"])
 @require_auth
@@ -195,7 +238,7 @@ def reset():
         agent.reset()
         return jsonify({"status": "ok"})
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": _safe_error(e)}), 500
 
 @app.route("/api/command", methods=["POST"])
 @require_auth
@@ -226,7 +269,7 @@ def direct_command():
         return jsonify(result)
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": _safe_error(e)}), 500
 
 @app.route("/api/provider", methods=["GET"])
 @require_auth
@@ -235,7 +278,7 @@ def get_provider_info():
         agent = get_agent()
         return jsonify(agent.provider.get_info())
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": _safe_error(e)}), 500
 
 @app.route("/health")
 def health():

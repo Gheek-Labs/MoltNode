@@ -34,7 +34,7 @@ The system is designed around a Minima blockchain node, enhanced with several la
 ### Feature Specifications
 - **One-Click Bootstrap**: A `bootstrap.sh` script automates the setup process, including downloading the Minima JAR and installing prerequisites.
 - **Mandatory Bootstrap Sequence**: A defined 5-step sequence ensures proper node initialization, seed phrase backup, MxID setup, and peer connectivity verification.
-- **Secure Chat Interface**: The chat interface is disabled by default and requires explicit enablement with a strong password. It includes rate limiting and input character limits for security.
+- **Secure Chat Interface**: The chat interface is disabled by default and requires explicit enablement with a strong password. It includes CSRF protection on all forms, session regeneration on login, rate limiting (20 req/60s general, 5 req/5min login), input character limits (2000 chars), Secure cookies when remote-accessible, and command normalization to prevent case/whitespace bypass.
 - **MLS Auto-Detection**: The MxID setup intelligently detects if the node can act as its own MLS (Message Layer Security) based on network configuration.
 
 ### System Design Choices

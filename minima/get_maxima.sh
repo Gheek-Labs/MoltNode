@@ -1,12 +1,13 @@
 #!/bin/bash
+set -eo pipefail
 
 RPC_PORT=9005
 RPC_URL="http://localhost:$RPC_PORT"
 
-RESPONSE=$(curl -s "${RPC_URL}/maxima%20action:info" 2>/dev/null)
+RESPONSE=$(curl -s "${RPC_URL}/maxima%20action:info" 2>/dev/null) || true
 
 if echo "$RESPONSE" | grep -q '"status":true'; then
-    MAXIMA_ADDRESS=$(echo "$RESPONSE" | jq -r '.response.contact' 2>/dev/null)
+    MAXIMA_ADDRESS=$(echo "$RESPONSE" | jq -r '.response.contact' 2>/dev/null) || true
     if [ -n "$MAXIMA_ADDRESS" ] && [ "$MAXIMA_ADDRESS" != "null" ]; then
         echo "$MAXIMA_ADDRESS"
         exit 0

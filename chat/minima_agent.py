@@ -185,7 +185,8 @@ When users ask about templates, ROS2, dashboards, webhook listeners, or bot exam
 def execute_command(command: str) -> Dict[str, Any]:
     """Execute a Minima command using the SDK or shell scripts."""
     try:
-        base = command.split()[0] if command.split() else ""
+        parts = command.split()
+        base = parts[0].lower().strip() if parts else ""
         params = _parse_params(command)
 
         if base == "mxid_info":
@@ -392,7 +393,7 @@ def extract_command_base(command: str) -> str:
 
 def is_safe_command(command: str) -> bool:
     """Check if a command is safe to execute without confirmation."""
-    base = extract_command_base(command)
+    base = extract_command_base(command).lower().strip()
     if base in SAFE_COMMANDS:
         return True
     if base == "balance":
@@ -411,7 +412,7 @@ DESTRUCTIVE_RPC_PATTERNS = [
 
 def requires_confirmation(command: str) -> bool:
     """Check if a command requires explicit user confirmation."""
-    base = extract_command_base(command)
+    base = extract_command_base(command).lower().strip()
     if base in REQUIRES_CONFIRMATION:
         return True
     for pattern in DESTRUCTIVE_RPC_PATTERNS:

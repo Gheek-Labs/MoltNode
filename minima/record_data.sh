@@ -89,7 +89,7 @@ TIMESTAMP="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 rpc() {
     local cmd="$1"
     local encoded
-    encoded=$(echo "$cmd" | sed 's/ /%20/g; s/{/%7B/g; s/}/%7D/g; s/"/%22/g; s/:/%3A/g; s/,/%2C/g')
+    encoded=$(python3 -c "import sys, urllib.parse; print(urllib.parse.quote(sys.argv[1], safe=''))" "$cmd" 2>/dev/null || echo "$cmd" | sed 's/ /%20/g; s/{/%7B/g; s/}/%7D/g; s/"/%22/g; s/:/%3A/g; s/,/%2C/g; s/\[/%5B/g; s/\]/%5D/g')
     local response
     response=$(curl -s "${RPC_URL}/${encoded}" 2>/dev/null)
 

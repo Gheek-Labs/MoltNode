@@ -1,9 +1,10 @@
 #!/bin/bash
+set -eo pipefail
 
 RPC_PORT=9005
 RPC_URL="http://localhost:$RPC_PORT"
 
-if [ -z "$1" ]; then
+if [ -z "${1:-}" ]; then
     echo "Minima CLI - Agent-Friendly Interface"
     echo "======================================="
     echo ""

@@ -1,7 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
-CLI="${CLI:-./minima/cli.sh}"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+CLI="$SCRIPT_DIR/cli.sh"
 
 command -v jq >/dev/null 2>&1 || { echo "ERROR: jq is required but not installed."; exit 1; }
 
