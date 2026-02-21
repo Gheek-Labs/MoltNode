@@ -1,8 +1,8 @@
 import os
 import sys
 import time
+import hmac
 import secrets
-import hashlib
 import functools
 from collections import defaultdict
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for
@@ -69,22 +69,35 @@ app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 
 _rate_limits = defaultdict(list)
 
-def _check_rate_limit(client_ip):
+LOGIN_RATE_LIMIT_REQUESTS = 5
+LOGIN_RATE_LIMIT_WINDOW = 300
+
+_login_rate_limits = defaultdict(list)
+
+def _get_client_ip():
+    forwarded = request.headers.get("X-Forwarded-For", "")
+    if forwarded:
+        return forwarded.split(",")[0].strip()
+    return request.remote_addr or "unknown"
+
+def _check_rate_limit(client_ip, bucket=None, max_requests=None, window=None):
+    store = bucket if bucket is not None else _rate_limits
+    limit = max_requests or RATE_LIMIT_REQUESTS
+    win = window or RATE_LIMIT_WINDOW
     now = time.time()
-    window_start = now - RATE_LIMIT_WINDOW
-    _rate_limits[client_ip] = [t for t in _rate_limits[client_ip] if t > window_start]
-    if len(_rate_limits[client_ip]) >= RATE_LIMIT_REQUESTS:
+    window_start = now - win
+    store[client_ip] = [t for t in store[client_ip] if t > window_start]
+    if len(store[client_ip]) >= limit:
         return False
-    _rate_limits[client_ip].append(now)
+    store[client_ip].append(now)
     return True
 
-def _password_hash(password):
-    return hashlib.sha256(password.encode("utf-8")).hexdigest()
+_session_token = secrets.token_hex(32)
 
 def require_auth(f):
     @functools.wraps(f)
     def decorated(*args, **kwargs):
-        if session.get("authenticated") != _password_hash(CHAT_PASSWORD):
+        if session.get("authenticated") != _session_token:
             if request.is_json:
                 return jsonify({"error": "Authentication required"}), 401
             return redirect(url_for("login"))
@@ -123,9 +136,15 @@ def get_agent():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
+        client_ip = _get_client_ip()
+        if not _check_rate_limit(client_ip, bucket=_login_rate_limits,
+                                  max_requests=LOGIN_RATE_LIMIT_REQUESTS,
+                                  window=LOGIN_RATE_LIMIT_WINDOW):
+            return render_template("login.html", error="Too many login attempts. Try again in a few minutes."), 429
+
         password = request.form.get("password", "")
-        if password == CHAT_PASSWORD:
-            session["authenticated"] = _password_hash(CHAT_PASSWORD)
+        if hmac.compare_digest(password.encode("utf-8"), CHAT_PASSWORD.encode("utf-8")):
+            session["authenticated"] = _session_token
             return redirect(url_for("index"))
         return render_template("login.html", error="Incorrect password"), 401
     return render_template("login.html", error=None)
@@ -144,7 +163,7 @@ def index():
 @require_auth
 def chat():
     try:
-        client_ip = request.remote_addr or "unknown"
+        client_ip = _get_client_ip()
         if not _check_rate_limit(client_ip):
             return jsonify({"error": "Rate limit exceeded. Please wait before sending more messages."}), 429
 
@@ -182,7 +201,7 @@ def reset():
 @require_auth
 def direct_command():
     try:
-        client_ip = request.remote_addr or "unknown"
+        client_ip = _get_client_ip()
         if not _check_rate_limit(client_ip):
             return jsonify({"error": "Rate limit exceeded."}), 429
 

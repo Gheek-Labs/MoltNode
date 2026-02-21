@@ -103,7 +103,10 @@ Once all 5 steps are complete, your node is bootstrapped, backed up, and has a s
 | 9001 | P2P | All interfaces | **Intentionally open** — required for blockchain peer discovery |
 | 9003 | MDS | All interfaces (SSL) | Password-protected; block at firewall if not needed externally |
 | 9005 | RPC | All interfaces | **No authentication** — must be firewall-restricted in production. On Replit, only port 5000 is externally exposed, so 9005 is safe. On bare metal/VPS, block 9005 at your firewall. |
-| 5000 | Chat UI (Flask) | All interfaces | Public web interface; no sensitive operations without confirmation |
+| 5000 | Chat UI (Flask) | 127.0.0.1 (default) | **Disabled by default.** Requires `ENABLE_CHAT=true` + `CHAT_PASSWORD`. Set `CHAT_BIND=0.0.0.0` for remote access. |
+
+### LLM Privacy Notice
+When using the chat interface, full RPC responses (wallet addresses, public keys, balances) are sent to your configured LLM provider as part of conversation context. If using an external provider (OpenAI, Anthropic), this data leaves your machine. For sensitive environments, use a local LLM (Ollama) or the custom provider pointed at a self-hosted endpoint.
 
 ## Common Bootstrap Mistakes
 
